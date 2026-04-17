@@ -3,85 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cake Mart</title>
+    <title>Cake Mart | Village Fresh</title>
     <style>
         :root { --primary: #d81b60; --light: #fff5f8; --success: #27ae60; --white: #ffffff; --info: #2196F3; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--light); color: #333; overflow-x: hidden; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--light); color: #333; }
 
-        /* Hero Page */
+        /* --- HERO PAGE --- */
         #hero-page {
             height: 100vh; display: flex; flex-direction: column; justify-content: center;
             align-items: center; text-align: center;
             background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=1000');
-            background-size: cover; background-position: center; color: white; padding: 20px;
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            color: white; padding: 20px;
         }
         .start-btn { margin-top: 25px; background: var(--primary); color: white; padding: 18px 60px; border-radius: 50px; border: none; font-weight: bold; cursor: pointer; font-size: 1.2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
 
         #main-app { display: none; }
         
-        .nav-container { position: sticky; top: 0; z-index: 1000; background: var(--white); display: flex; overflow-x: auto; padding: 15px 10px; gap: 8px; border-bottom: 2px solid #eee; scrollbar-width: none; }
-        .nav-container::-webkit-scrollbar { display: none; }
-        .nav-btn { padding: 10px 22px; background: var(--white); border: 2px solid var(--primary); border-radius: 25px; white-space: nowrap; color: var(--primary); font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 0.7rem; }
+        /* Search Bar */
+        .search-container { background: var(--white); padding: 10px; position: sticky; top: 0; z-index: 1001; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        #menu-search { width: 100%; padding: 12px 20px; border-radius: 25px; border: 1.5px solid #eee; font-size: 1rem; outline: none; background: #f9f9f9; }
+
+        .nav-container { position: sticky; top: 64px; z-index: 1000; background: var(--white); display: flex; overflow-x: auto; padding: 12px 10px; gap: 8px; border-bottom: 2px solid #eee; }
+        .nav-btn { padding: 10px 22px; background: var(--white); border: 2px solid var(--primary); border-radius: 25px; white-space: nowrap; color: var(--primary); font-weight: 800; cursor: pointer; }
         .nav-btn.active { background: var(--primary); color: var(--white); }
 
-        .tab-section { display: none; padding-bottom: 450px; }
-        .tab-section.active { display: block; animation: fadeIn 0.3s; }
+        .tab-section { display: none; padding-bottom: 420px; }
+        .tab-section.active { display: block; animation: fadeIn 0.4s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
+        /* Banner Styling */
+        .cat-banner { width: 100%; height: 160px; object-fit: cover; border-bottom: 4px solid var(--primary); margin-bottom: 10px; }
+
         .menu-item { background: var(--white); margin: 0 10px 2px; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f0f0; }
-        .item-info { flex: 1; }
-        .item-name { font-weight: 700; display: block; color: #333; font-size: 1rem; }
-        .item-price { color: var(--primary); font-weight: 600; font-size: 0.9rem; }
+        .qty-wrap { display: flex; align-items: center; gap: 12px; }
+        .qty-btn { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--primary); background: var(--white); color: var(--primary); font-weight: 900; cursor: pointer; }
 
-        .qty-wrap { display: flex; align-items: center; gap: 15px; background: #fdf2f5; padding: 5px 10px; border-radius: 30px; border: 1px solid #ffe1eb; }
-        .qty-btn { width: 32px; height: 32px; border-radius: 50%; border: none; background: var(--primary); color: white; font-weight: 900; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; }
-        .qty-val { font-weight: 800; min-width: 20px; text-align: center; }
-
+        /* Order Panel */
         #order-panel {
             position: fixed; bottom: 0; width: 100%; background: var(--white);
             box-shadow: 0 -10px 30px rgba(0,0,0,0.2); display: none;
             padding: 20px; border-radius: 30px 30px 0 0; z-index: 2000;
         }
         .input-field { width: 100%; padding: 14px; margin-bottom: 10px; border: 1.5px solid #ddd; border-radius: 12px; font-size: 1rem; outline: none; }
-        .loc-btn { background: var(--info); color: white; border: none; padding: 16px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; margin-bottom: 10px; }
-        .confirm-btn { background: var(--success); color: white; border: none; padding: 18px; border-radius: 12px; font-weight: 800; width: 100%; font-size: 1.2rem; cursor: pointer; display: none; }
         
-        #loc-status { display: none; background: #e3f2fd; color: #1565c0; padding: 12px; border-radius: 10px; text-align: center; font-weight: bold; margin-bottom: 10px; font-size: 0.9rem; }
-        .bill-details { background: #f9f9f9; padding: 12px; border-radius: 12px; text-align: center; font-size: 0.9rem; }
-        .grand-total { font-weight: 900; color: var(--primary); font-size: 1.3rem; display: block; margin-top: 5px; }
+        .loc-btn { background: var(--info); color: white; border: none; padding: 16px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; }
+        .confirm-btn { background: var(--success); color: white; border: none; padding: 20px; border-radius: 12px; font-weight: 800; width: 100%; font-size: 1.3rem; cursor: pointer; display: none; }
+        
+        #loc-status { 
+            display: none; background: #e3f2fd; color: #1565c0; padding: 12px; 
+            border-radius: 10px; text-align: center; font-weight: bold; margin-bottom: 10px; 
+            border: 1px solid #bbdefb; font-size: 0.9rem;
+        }
+
+        .bill-details { background: #f9f9f9; padding: 12px; border-radius: 12px; margin-top: 10px; font-size: 0.95rem; }
+        .bill-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .grand-total { border-top: 1px solid #ddd; padding-top: 8px; margin-top: 8px; font-weight: 900; color: var(--primary); font-size: 1.2rem; }
     </style>
 </head>
 <body>
 
     <div id="hero-page">
-        <h1 style="font-size: 3rem; margin: 0;">CAKE MART</h1>
+        <h1 style="font-size: 3rem; margin: 0; letter-spacing: 2px;">CAKE MART</h1>
+        <p style="text-transform: uppercase; font-size: 0.9rem; letter-spacing: 3px;">Village Fresh & Sweets</p>
         <button class="start-btn" onclick="openApp()">START ORDERING</button>
     </div>
 
     <div id="main-app">
-        <div class="nav-container" id="nav-tabs"></div>
-        <div id="menu-container"></div>
+        <div class="search-container">
+            <input type="text" id="menu-search" placeholder="Search menu..." onkeyup="filterMenu()">
+        </div>
+
+        <div class="nav-container">
+            <div class="nav-btn active" onclick="switchTab('fried_chicken', this)">Fried Chicken</div>
+            <div class="nav-btn" onclick="switchTab('chicken_pizza', this)">Pizzas</div>
+            <div class="nav-btn" onclick="switchTab('burger', this)">Burgers</div>
+            <div class="nav-btn" onclick="switchTab('chats', this)">Chats/Momos</div>
+            <div class="nav-btn" onclick="switchTab('drinks', this)">Beverages</div>
+        </div>
+
+        <div id="fried_chicken" class="tab-section active">
+            <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800" class="cat-banner">
+            <div id="list-fried_chicken"></div>
+            <div id="list-wrap_sandwich"></div>
+        </div>
+        <div id="chicken_pizza" class="tab-section">
+            <img src="https://images.unsplash.com/photo-1551024506-0bccd828d307?w=800" class="cat-banner">
+            <div id="list-chicken_pizza"></div>
+            <div id="list-veg_pizza"></div>
+        </div>
+        <div id="burger" class="tab-section">
+            <img src="https://images.unsplash.com/photo-1589119908995-c6837fa14848?w=800" class="cat-banner">
+            <div id="list-burger"></div>
+            <div id="list-club_sandwich"></div>
+            <div id="list-samoona_sandwich"></div>
+        </div>
+        <div id="chats" class="tab-section">
+            <img src="https://images.unsplash.com/photo-1541529086526-db283c563270?w=800" class="cat-banner">
+            <div id="list-puffs"></div>
+            <div id="list-chats"></div>
+        </div>
+        <div id="drinks" class="tab-section">
+            <img src="https://images.unsplash.com/photo-1544145945-f904253d0c71?w=800" class="cat-banner">
+            <div id="list-scoopso_icecream"></div>
+            <div id="list-falooda"></div>
+            <div id="list-cold"></div>
+            <div id="list-crush"></div>
+            <div id="list-fresh_fruit_juice"></div>
+            <div id="list-fresh_fruit_milk_shake"></div>
+            <div id="list-biscuit_and_chocolate"></div>
+            <div id="list-fruits_salad"></div>
+            <div id="list-dry_fruits"></div>
+            <div id="list-lime"></div>
+            <div id="list-soda"></div>
+            <div id="list-mojito"></div>
+            <div id="list-lassi"></div>
+        </div>
     </div>
 
     <div id="order-panel">
-        <input type="text" id="cust-name" class="input-field" placeholder="Customer Name">
-        <input type="number" id="cust-phone" class="input-field" placeholder="Phone Number">
-        <div id="loc-status">Checking GPS...</div>
-        <button class="loc-btn" id="loc-btn" onclick="askLocation()">📍 SHARE LOCATION</button>
-        <button class="confirm-btn" id="confirm-btn" onclick="sendOrder()">CONFIRM ORDER</button>
+        <input type="text" id="cust-name" class="input-field" placeholder="Full Name (Letters Only)" oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')">
+        <input type="text" id="cust-phone" class="input-field" placeholder="Phone Number (10 Digits)" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" maxlength="10">
+        
+        <div id="loc-status">Accessing your GPS...</div>
+        
+        <button class="loc-btn" id="loc-btn" onclick="askLocation()">📍 SHARE LIVE LOCATION</button>
+        <button class="confirm-btn" id="confirm-btn" onclick="sendOrder()">CONFIRM & SEND ORDER</button>
+
         <div class="bill-details">
-            <div>Items Total: ₹<span id="items-total">0</span> | Delivery: ₹<span id="delivery-charge">0</span></div>
-            <span class="grand-total">GRAND TOTAL: ₹<span id="bill-total">0</span></span>
+            <div class="bill-row"><span>Items Total:</span> <span>₹<span id="items-price">0</span></span></div>
+            <div class="bill-row"><span>Delivery Fee:</span> <span>₹<span id="del-fee">0</span></span></div>
+            <div class="bill-row grand-total"><span>Grand Total:</span> <span>₹<span id="bill-total">0</span></span></div>
         </div>
     </div>
 
 <script>
+    const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSe6-a7FLkxR36p6mqQ0E3xo5djjNLgZErgC2tM_scPmMvSVMA/formResponse"; 
+
+    let userLoc = "Not Provided";
     let cart = {};
-    let userLocation = "Not Provided";
-    
-    // YOUR FORM URL
-    const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSe6-a7FLkxR36p6mqQ0E3xo5djjNLgZErgC2tM_scPmMvSVMA/formResponse";
 
     const database = {
         fried_chicken: [
@@ -90,10 +151,8 @@
             { name: "Fried Chicken (8 PCS)", p: 380 }
         ],
         wrap_sandwich: [
-            { name: "Tortilla Wrap (Chicken)", p: 100 },
-            { name: "Tortilla Wrap (Veg)", p: 100 },
-            { name: "Paratta Wrap (Chicken)", p: 100 },
-            { name: "Paratta Wrap (Veg)", p: 100 }
+            { name: "Tortilla Wrap sandwich (Chicken/Veg)", p: 100 },
+            { name: "Paratta Wrap sandwich (Chicken/Veg)", p: 100 }
         ],
         chicken_pizza: [
             { name: "Normal Chicken Pizza", p: 200 },
@@ -143,6 +202,7 @@
         chats: [
             { name: "French Fries", p: 80 },
             { name: "Masala Fries", p: 90 },
+            { name: "Loaded Fries", p: 120 },
             { name: "Chicken Nuggets 5Pcs", p: 100 },
             { name: "Veg Nuggets 5Pcs", p: 90 },
             { name: "Veg Finger 5Pcs", p: 90 },
@@ -266,28 +326,7 @@
     function openApp() {
         document.getElementById('hero-page').style.display = 'none';
         document.getElementById('main-app').style.display = 'block';
-        initMenu();
-    }
-
-    function initMenu() {
-        const nav = document.getElementById('nav-tabs');
-        const container = document.getElementById('menu-container');
-        let first = true;
-        for (let cat in database) {
-            const btn = document.createElement('div');
-            btn.className = `nav-btn ${first ? 'active' : ''}`;
-            btn.innerText = cat.replace(/_/g, ' ');
-            btn.onclick = (e) => switchTab(cat, e.target);
-            nav.appendChild(btn);
-            const section = document.createElement('div');
-            section.id = cat;
-            section.className = `tab-section ${first ? 'active' : ''}`;
-            database[cat].forEach(item => {
-                section.innerHTML += `<div class="menu-item"><div class="item-info"><span class="item-name">${item.name}</span><span class="item-price">₹${item.p}</span></div><div class="qty-wrap"><button class="qty-btn" onclick="changeQty('${item.name}', ${item.p}, -1, this)">-</button><span class="qty-val">0</span><button class="qty-btn" onclick="changeQty('${item.name}', ${item.p}, 1, this)">+</button></div></div>`;
-            });
-            container.appendChild(section);
-            first = false;
-        }
+        loadMenu();
     }
 
     function switchTab(id, btn) {
@@ -295,65 +334,106 @@
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         btn.classList.add('active');
-        btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        document.getElementById('menu-search').value = "";
+        filterMenu();
+        window.scrollTo(0,0);
     }
 
-    function changeQty(name, price, delta, btn) {
-        const valEl = btn.parentElement.querySelector('.qty-val');
-        let current = (parseInt(valEl.innerText) || 0) + delta;
-        if(current < 0) current = 0;
-        valEl.innerText = current;
-        if(current > 0) cart[name] = { q: current, p: price };
-        else delete cart[name];
-        updateTotal();
+    function loadMenu() {
+        for (let cat in database) {
+            const div = document.getElementById('list-' + cat);
+            if(div){
+                database[cat].forEach(item => {
+                    div.innerHTML += `<div class="menu-item" data-name="${item.name}" data-price="${item.p}">
+                        <span style="font-weight:700">${item.name} <br><small>₹${item.p}</small></span>
+                        <div class="qty-wrap">
+                            <button class="qty-btn" onclick="updateQty('${item.name}', -1, this)">-</button>
+                            <span class="val" style="font-weight:900">0</span>
+                            <button class="qty-btn" onclick="updateQty('${item.name}', 1, this)">+</button>
+                        </div>
+                    </div>`;
+                });
+            }
+        }
     }
 
-    function updateTotal() {
+    function filterMenu() {
+        let input = document.getElementById('menu-search').value.toLowerCase();
+        let items = document.querySelectorAll('.menu-item');
+        items.forEach(item => {
+            let name = item.getAttribute('data-name').toLowerCase();
+            item.style.display = name.includes(input) ? "flex" : "none";
+        });
+    }
+
+    function updateQty(name, val, btn) {
+        const card = btn.closest('.menu-item');
+        const display = card.querySelector('.val');
+        const price = parseInt(card.getAttribute('data-price'));
+        let q = parseInt(display.innerText) + val;
+        if(q < 0) q = 0;
+        display.innerText = q;
+        if(q > 0) cart[name] = { q, total: q * price }; else delete cart[name];
+        recalc();
+    }
+
+    function recalc() {
         let itemsTotal = 0;
-        for(let id in cart) itemsTotal += (cart[id].q * cart[id].p);
-        let deliveryCharge = (itemsTotal > 0) ? (itemsTotal < 100 ? 15 : Math.round(itemsTotal * 0.15)) : 0;
-        const total = itemsTotal + deliveryCharge;
-        document.getElementById('items-total').innerText = itemsTotal;
-        document.getElementById('delivery-charge').innerText = deliveryCharge;
-        document.getElementById('bill-total').innerText = total;
+        for(let x in cart) itemsTotal += cart[x].total;
+        let deliveryFee = itemsTotal > 0 ? (itemsTotal < 100 ? 15 : Math.round(itemsTotal * 0.15)) : 0;
+        document.getElementById('items-price').innerText = itemsTotal;
+        document.getElementById('del-fee').innerText = deliveryFee;
+        document.getElementById('bill-total').innerText = itemsTotal + deliveryFee;
         document.getElementById('order-panel').style.display = itemsTotal > 0 ? 'block' : 'none';
     }
 
     function askLocation() {
+        const statusBox = document.getElementById('loc-status');
+        statusBox.style.display = "block";
+        statusBox.innerText = "⏳ Accessing your GPS...";
         if (navigator.geolocation) {
-            document.getElementById('loc-status').style.display = 'block';
             navigator.geolocation.getCurrentPosition((pos) => {
-                userLocation = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
-                document.getElementById('loc-status').innerText = "✅ Location Saved";
-                document.getElementById('loc-btn').style.display = 'none';
-                document.getElementById('confirm-btn').style.display = 'block';
-            });
+                userLoc = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+                statusBox.innerText = "✅ GPS Access Secured!";
+                statusBox.style.background = "#e8f5e9";
+                statusBox.style.color = "#2e7d32";
+                document.getElementById('loc-btn').style.display = "none";
+                document.getElementById('confirm-btn').style.display = "block";
+            }, () => { alert("Location is required for delivery."); });
         }
     }
 
     function sendOrder() {
         const name = document.getElementById('cust-name').value;
         const phone = document.getElementById('cust-phone').value;
-        const total = document.getElementById('bill-total').innerText;
-        if(!name || !phone) return alert("Enter Name and Phone");
+        const btn = document.getElementById('confirm-btn');
 
-        // CLEAN ORDER LISTING
-        let details = `CUSTOMER: ${name}\nPHONE: ${phone}\nLOC: ${userLocation}\n\nITEMS:\n`;
-        for(let item in cart) {
-            details += `- ${item} x${cart[item].q}\n`;
-        }
+        if(!name || phone.length < 10) return alert("Enter valid Name and Phone!");
 
-        const formData = new URLSearchParams();
-        formData.append("entry.1603933071", "Cake Mart"); // ONLY Cake Mart
-        formData.append("entry.433588684", details);     // Full order breakdown
-        formData.append("entry.736903222", total);       // Final Price
+        btn.innerText = "Sending Order...";
+        btn.disabled = true;
 
-        document.getElementById('confirm-btn').innerText = "SENDING...";
-        
-        fetch(FORM_URL, { method: 'POST', mode: 'no-cors', body: formData })
-        .then(() => {
-            alert("Order Placed Successfully!");
+        // FORMATTING FULL ORDER DETAILS
+        let orderDetails = `CUSTOMER: ${name}\nPHONE: ${phone}\nLOC: ${userLoc}\n\nITEMS:\n`;
+        for(let key in cart) orderDetails += `- ${key} x${cart[key].q}\n`;
+
+        const finalTotal = document.getElementById('bill-total').innerText;
+
+        const data = new URLSearchParams();
+        data.append('entry.1603933071', "Cake Mart"); // HOTEL
+        data.append('entry.433588684', orderDetails);  // DETAILS
+        data.append('entry.736903222', finalTotal);    // TOTAL
+
+        fetch(FORM_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: data
+        }).then(() => {
+            alert("ORDER PLACED SUCCESSFULLY!");
             location.reload();
+        }).catch(() => {
+            alert("Error sending order.");
+            btn.disabled = false;
         });
     }
 </script>
