@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cake Mart | Village Fresh</title>
+    <title>Cake Mart</title>
     <style>
         :root { --primary: #d81b60; --light: #fff5f8; --success: #27ae60; --white: #ffffff; --info: #2196F3; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -56,7 +56,6 @@
 
     <div id="hero-page">
         <h1 style="font-size: 3rem; margin: 0;">CAKE MART</h1>
-        <p style="letter-spacing: 4px;">VILLAGE FRESH & SWEETS</p>
         <button class="start-btn" onclick="openApp()">START ORDERING</button>
     </div>
 
@@ -66,23 +65,23 @@
     </div>
 
     <div id="order-panel">
-        <input type="text" id="cust-name" class="input-field" placeholder="Your Name">
+        <input type="text" id="cust-name" class="input-field" placeholder="Customer Name">
         <input type="number" id="cust-phone" class="input-field" placeholder="Phone Number">
         <div id="loc-status">Checking GPS...</div>
-        <button class="loc-btn" id="loc-btn" onclick="askLocation()">📍 SHARE DELIVERY LOCATION</button>
+        <button class="loc-btn" id="loc-btn" onclick="askLocation()">📍 SHARE LOCATION</button>
         <button class="confirm-btn" id="confirm-btn" onclick="sendOrder()">CONFIRM ORDER</button>
         <div class="bill-details">
-            <div>Items: ₹<span id="items-total">0</span> | Delivery: ₹<span id="delivery-charge">0</span></div>
-            <span class="grand-total">Total: ₹<span id="bill-total">0</span></span>
+            <div>Items Total: ₹<span id="items-total">0</span> | Delivery: ₹<span id="delivery-charge">0</span></div>
+            <span class="grand-total">GRAND TOTAL: ₹<span id="bill-total">0</span></span>
         </div>
     </div>
 
 <script>
     let cart = {};
-    let userLocation = "Not Shared";
+    let userLocation = "Not Provided";
     
-    // REDIRECTED TO YOUR FORM ENDPOINT
-    const FORM_RESPONSE_URL = "https://docs.google.com/forms/d/e/1FAIpQLSe6-a7FLkxR36p6mqQ0E3xo5djjNLgZErgC2tM_scPmMvSVMA/formResponse";
+    // YOUR FORM URL
+    const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSe6-a7FLkxR36p6mqQ0E3xo5djjNLgZErgC2tM_scPmMvSVMA/formResponse";
 
     const database = {
         fried_chicken: [
@@ -274,31 +273,17 @@
         const nav = document.getElementById('nav-tabs');
         const container = document.getElementById('menu-container');
         let first = true;
-
         for (let cat in database) {
             const btn = document.createElement('div');
             btn.className = `nav-btn ${first ? 'active' : ''}`;
             btn.innerText = cat.replace(/_/g, ' ');
             btn.onclick = (e) => switchTab(cat, e.target);
             nav.appendChild(btn);
-
             const section = document.createElement('div');
             section.id = cat;
             section.className = `tab-section ${first ? 'active' : ''}`;
-            
             database[cat].forEach(item => {
-                section.innerHTML += `
-                    <div class="menu-item">
-                        <div class="item-info">
-                            <span class="item-name">${item.name}</span>
-                            <span class="item-price">₹${item.p}</span>
-                        </div>
-                        <div class="qty-wrap">
-                            <button class="qty-btn" onclick="changeQty('${item.name}', ${item.p}, -1, this)">-</button>
-                            <span class="qty-val">0</span>
-                            <button class="qty-btn" onclick="changeQty('${item.name}', ${item.p}, 1, this)">+</button>
-                        </div>
-                    </div>`;
+                section.innerHTML += `<div class="menu-item"><div class="item-info"><span class="item-name">${item.name}</span><span class="item-price">₹${item.p}</span></div><div class="qty-wrap"><button class="qty-btn" onclick="changeQty('${item.name}', ${item.p}, -1, this)">-</button><span class="qty-val">0</span><button class="qty-btn" onclick="changeQty('${item.name}', ${item.p}, 1, this)">+</button></div></div>`;
             });
             container.appendChild(section);
             first = false;
@@ -318,23 +303,19 @@
         let current = (parseInt(valEl.innerText) || 0) + delta;
         if(current < 0) current = 0;
         valEl.innerText = current;
-
         if(current > 0) cart[name] = { q: current, p: price };
         else delete cart[name];
-        
         updateTotal();
     }
 
     function updateTotal() {
         let itemsTotal = 0;
         for(let id in cart) itemsTotal += (cart[id].q * cart[id].p);
-        
         let deliveryCharge = (itemsTotal > 0) ? (itemsTotal < 100 ? 15 : Math.round(itemsTotal * 0.15)) : 0;
-        const grandTotal = itemsTotal + deliveryCharge;
-
+        const total = itemsTotal + deliveryCharge;
         document.getElementById('items-total').innerText = itemsTotal;
         document.getElementById('delivery-charge').innerText = deliveryCharge;
-        document.getElementById('bill-total').innerText = grandTotal;
+        document.getElementById('bill-total').innerText = total;
         document.getElementById('order-panel').style.display = itemsTotal > 0 ? 'block' : 'none';
     }
 
@@ -343,50 +324,36 @@
             document.getElementById('loc-status').style.display = 'block';
             navigator.geolocation.getCurrentPosition((pos) => {
                 userLocation = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
-                document.getElementById('loc-status').innerText = "✅ Location Locked";
+                document.getElementById('loc-status').innerText = "✅ Location Saved";
                 document.getElementById('loc-btn').style.display = 'none';
                 document.getElementById('confirm-btn').style.display = 'block';
-            }, () => { alert("Please enable GPS to order"); });
+            });
         }
     }
 
     function sendOrder() {
         const name = document.getElementById('cust-name').value;
         const phone = document.getElementById('cust-phone').value;
-        if(!name || !phone) return alert("Please enter Name and Phone");
+        const total = document.getElementById('bill-total').innerText;
+        if(!name || !phone) return alert("Enter Name and Phone");
 
-        // 1. FORMAT ORDER DETAILS
-        let orderSummary = `Customer: ${name} | Phone: ${phone} | Location: ${userLocation} | Items: `;
+        // CLEAN ORDER LISTING
+        let details = `CUSTOMER: ${name}\nPHONE: ${phone}\nLOC: ${userLocation}\n\nITEMS:\n`;
         for(let item in cart) {
-            orderSummary += `${item} (x${cart[item].q}), `;
+            details += `- ${item} x${cart[item].q}\n`;
         }
-        orderSummary = orderSummary.replace(/,\s*$/, "");
 
-        const grandTotal = document.getElementById('bill-total').innerText;
-
-        // 2. MAP TO YOUR PRE-FILLED ENTRY IDs
         const formData = new URLSearchParams();
-        formData.append("entry.1603933071", "CAKE MART | VILLAGE FRESH"); // HOTEL
-        formData.append("entry.433588684", orderSummary);                // DETAILS
-        formData.append("entry.736903222", grandTotal);                  // TOTAL
+        formData.append("entry.1603933071", "Cake Mart"); // ONLY Cake Mart
+        formData.append("entry.433588684", details);     // Full order breakdown
+        formData.append("entry.736903222", total);       // Final Price
 
         document.getElementById('confirm-btn').innerText = "SENDING...";
-        document.getElementById('confirm-btn').disabled = true;
-
-        // 3. SEND DIRECTLY TO GOOGLE FORM
-        fetch(FORM_RESPONSE_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: formData,
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-        })
+        
+        fetch(FORM_URL, { method: 'POST', mode: 'no-cors', body: formData })
         .then(() => {
-            alert("Success! Your order has been placed.");
+            alert("Order Placed Successfully!");
             location.reload();
-        })
-        .catch(err => {
-            alert("Connection error. Try again.");
-            document.getElementById('confirm-btn').disabled = false;
         });
     }
 </script>
