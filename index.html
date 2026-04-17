@@ -33,7 +33,6 @@
         .tab-section.active { display: block; animation: fadeIn 0.4s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
-        /* Banner Styling */
         .cat-banner { width: 100%; height: 160px; object-fit: cover; border-bottom: 4px solid var(--primary); margin-bottom: 10px; }
 
         .menu-item { background: var(--white); margin: 0 10px 2px; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f0f0; }
@@ -77,10 +76,10 @@
 
         <div class="nav-container">
             <div class="nav-btn active" onclick="switchTab('fried_chicken', this)">Fried Chicken</div>
-            <div class="nav-btn" onclick="switchTab('chicken_pizza', this)">Pizzas</div>
-            <div class="nav-btn" onclick="switchTab('burger', this)">Burgers</div>
-            <div class="nav-btn" onclick="switchTab('chats', this)">Chats/Momos</div>
-            <div class="nav-btn" onclick="switchTab('drinks', this)">Beverages</div>
+            <div class="nav-btn" onclick="switchTab('pizza_cat', this)">Pizzas</div>
+            <div class="nav-btn" onclick="switchTab('burger_cat', this)">Burgers</div>
+            <div class="nav-btn" onclick="switchTab('chats_cat', this)">Chats</div>
+            <div class="nav-btn" onclick="switchTab('drinks_cat', this)">Beverages</div>
         </div>
 
         <div id="fried_chicken" class="tab-section active">
@@ -88,23 +87,27 @@
             <div id="list-fried_chicken"></div>
             <div id="list-wrap_sandwich"></div>
         </div>
-        <div id="chicken_pizza" class="tab-section">
+
+        <div id="pizza_cat" class="tab-section">
             <img src="https://images.unsplash.com/photo-1551024506-0bccd828d307?w=800" class="cat-banner">
             <div id="list-chicken_pizza"></div>
             <div id="list-veg_pizza"></div>
         </div>
-        <div id="burger" class="tab-section">
+
+        <div id="burger_cat" class="tab-section">
             <img src="https://images.unsplash.com/photo-1589119908995-c6837fa14848?w=800" class="cat-banner">
             <div id="list-burger"></div>
             <div id="list-club_sandwich"></div>
             <div id="list-samoona_sandwich"></div>
         </div>
-        <div id="chats" class="tab-section">
+
+        <div id="chats_cat" class="tab-section">
             <img src="https://images.unsplash.com/photo-1541529086526-db283c563270?w=800" class="cat-banner">
             <div id="list-puffs"></div>
             <div id="list-chats"></div>
         </div>
-        <div id="drinks" class="tab-section">
+
+        <div id="drinks_cat" class="tab-section">
             <img src="https://images.unsplash.com/photo-1544145945-f904253d0c71?w=800" class="cat-banner">
             <div id="list-scoopso_icecream"></div>
             <div id="list-falooda"></div>
@@ -123,11 +126,9 @@
     </div>
 
     <div id="order-panel">
-        <input type="text" id="cust-name" class="input-field" placeholder="Full Name (Letters Only)" oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')">
-        <input type="text" id="cust-phone" class="input-field" placeholder="Phone Number (10 Digits)" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" maxlength="10">
-        
-        <div id="loc-status">Accessing your GPS...</div>
-        
+        <input type="text" id="cust-name" class="input-field" placeholder="Full Name">
+        <input type="text" id="cust-phone" class="input-field" placeholder="Phone Number" maxlength="10">
+        <div id="loc-status">Waiting for GPS...</div>
         <button class="loc-btn" id="loc-btn" onclick="askLocation()">📍 SHARE LIVE LOCATION</button>
         <button class="confirm-btn" id="confirm-btn" onclick="sendOrder()">CONFIRM & SEND ORDER</button>
 
@@ -139,7 +140,7 @@
     </div>
 
 <script>
-    const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSe6-a7FLkxR36p6mqQ0E3xo5djjNLgZErgC2tM_scPmMvSVMA/formResponse"; 
+    const FORM_ACTION = "https://docs.google.com/forms/d/e/1FAIpQLSe6-a7FLkxR36p6mqQ0E3xo5djjNLgZErgC2tM_scPmMvSVMA/formResponse";
 
     let userLoc = "Not Provided";
     let cart = {};
@@ -390,50 +391,36 @@
     function askLocation() {
         const statusBox = document.getElementById('loc-status');
         statusBox.style.display = "block";
-        statusBox.innerText = "⏳ Accessing your GPS...";
+        statusBox.innerText = "⏳ Accessing GPS...";
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition((pos) => {
                 userLoc = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
-                statusBox.innerText = "✅ GPS Access Secured!";
+                statusBox.innerText = "✅ Location Locked!";
                 statusBox.style.background = "#e8f5e9";
-                statusBox.style.color = "#2e7d32";
                 document.getElementById('loc-btn').style.display = "none";
                 document.getElementById('confirm-btn').style.display = "block";
-            }, () => { alert("Location is required for delivery."); });
+            }, () => { alert("Please enable GPS."); });
         }
     }
 
     function sendOrder() {
         const name = document.getElementById('cust-name').value;
         const phone = document.getElementById('cust-phone').value;
-        const btn = document.getElementById('confirm-btn');
+        const total = document.getElementById('bill-total').innerText;
+        if(!name || !phone) return alert("Fill Name and Phone!");
 
-        if(!name || phone.length < 10) return alert("Enter valid Name and Phone!");
-
-        btn.innerText = "Sending Order...";
-        btn.disabled = true;
-
-        // FORMATTING FULL ORDER DETAILS
-        let orderDetails = `CUSTOMER: ${name}\nPHONE: ${phone}\nLOC: ${userLoc}\n\nITEMS:\n`;
-        for(let key in cart) orderDetails += `- ${key} x${cart[key].q}\n`;
-
-        const finalTotal = document.getElementById('bill-total').innerText;
+        let summary = `CUSTOMER: ${name}\nPHONE: ${phone}\nLOC: ${userLoc}\n\nORDER:\n`;
+        for(let k in cart) summary += `- ${k} (x${cart[k].q})\n`;
 
         const data = new URLSearchParams();
-        data.append('entry.1603933071', "Cake Mart"); // HOTEL
-        data.append('entry.433588684', orderDetails);  // DETAILS
-        data.append('entry.736903222', finalTotal);    // TOTAL
+        data.append('entry.1603933071', "Cake Mart");
+        data.append('entry.433588684', summary);
+        data.append('entry.736903222', total);
 
-        fetch(FORM_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: data
-        }).then(() => {
-            alert("ORDER PLACED SUCCESSFULLY!");
+        fetch(FORM_ACTION, { method: 'POST', mode: 'no-cors', body: data })
+        .then(() => {
+            alert("SUCCESS! ORDER PLACED.");
             location.reload();
-        }).catch(() => {
-            alert("Error sending order.");
-            btn.disabled = false;
         });
     }
 </script>
