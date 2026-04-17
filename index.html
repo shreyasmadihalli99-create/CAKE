@@ -80,8 +80,8 @@
 <script>
     let cart = {};
     let userLocation = "Not Shared";
-    // YOUR GOOGLE SCRIPT URL
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbIpe7AqeUYLoyRUlBRY4y93XdoJw2UwWZ9NjVCh6ovNqh1vt6d9hRzTlpXymEn3w4l/exec";
+    // Using your Provided Script URL
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzhr6y28m_185tLZIotXLcx00thGIrKNYDWSiXDVNDGgG3FdmbG44NBKx48otg2e__D/exec";
 
     const database = {
         fried_chicken: [
@@ -328,7 +328,12 @@
         let itemsTotal = 0;
         for(let id in cart) itemsTotal += (cart[id].q * cart[id].p);
         
-        let deliveryCharge = (itemsTotal > 0) ? (itemsTotal < 100 ? 15 : Math.round(itemsTotal * 0.15)) : 0;
+        let deliveryCharge = 0;
+        if (itemsTotal > 0) {
+            if (itemsTotal < 100) deliveryCharge = 15;
+            else deliveryCharge = Math.round(itemsTotal * 0.15);
+        }
+
         const grandTotal = itemsTotal + deliveryCharge;
 
         document.getElementById('items-total').innerText = itemsTotal;
@@ -358,17 +363,22 @@
         for(let item in cart) {
             orderSummary += `${item} (x${cart[item].q}), `;
         }
-        orderSummary = orderSummary.replace(/,\s*$/, "");
+        orderSummary = orderSummary.replace(/,\s*$/, ""); // Clean up last comma
 
+        // FIXED: Extract values as strings to ensure they aren't lost in transmission
+        const itemsTotal = document.getElementById('items-total').innerText;
+        const deliveryCharge = document.getElementById('delivery-charge').innerText;
         const grandTotal = document.getElementById('bill-total').innerText;
 
-        // FIXED: Using URLSearchParams for zero-bug fix and proper database arrival
+        // UPDATED: Using URLSearchParams for perfect data mapping to Google Sheets
         const params = new URLSearchParams();
         params.append("hotel", "CAKE MART | VILLAGE FRESH");
         params.append("name", name);
         params.append("phone", phone);
         params.append("order", orderSummary);
-        params.append("bill", grandTotal);
+        params.append("items_total", itemsTotal);
+        params.append("delivery", deliveryCharge);
+        params.append("total", grandTotal);
         params.append("location", userLocation);
 
         document.getElementById('confirm-btn').innerText = "SENDING...";
@@ -376,15 +386,16 @@
 
         fetch(SCRIPT_URL, { 
             method: 'POST', 
-            mode: 'no-cors', // To bypass CORS issues on some networks
+            mode: 'no-cors', // Essential for Google Web Apps to prevent CORS errors
             body: params 
         })
         .then(() => {
-            alert("Success! Order placed at Cake Mart.");
+            alert("Success! Your order has been placed.");
             location.reload();
         })
         .catch(err => {
-            alert("Network error. Please try again.");
+            console.error(err);
+            alert("Error sending order. Please check internet.");
             document.getElementById('confirm-btn').disabled = false;
         });
     }
