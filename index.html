@@ -80,8 +80,9 @@
 <script>
     let cart = {};
     let userLocation = "Not Shared";
-    // Using your Provided Script URL
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzhr6y28m_185tLZIotXLcx00thGIrKNYDWSiXDVNDGgG3FdmbG44NBKx48otg2e__D/exec";
+    
+    // REDIRECTED TO YOUR FORM ENDPOINT
+    const FORM_RESPONSE_URL = "https://docs.google.com/forms/d/e/1FAIpQLSe6-a7FLkxR36p6mqQ0E3xo5djjNLgZErgC2tM_scPmMvSVMA/formResponse";
 
     const database = {
         fried_chicken: [
@@ -328,12 +329,7 @@
         let itemsTotal = 0;
         for(let id in cart) itemsTotal += (cart[id].q * cart[id].p);
         
-        let deliveryCharge = 0;
-        if (itemsTotal > 0) {
-            if (itemsTotal < 100) deliveryCharge = 15;
-            else deliveryCharge = Math.round(itemsTotal * 0.15);
-        }
-
+        let deliveryCharge = (itemsTotal > 0) ? (itemsTotal < 100 ? 15 : Math.round(itemsTotal * 0.15)) : 0;
         const grandTotal = itemsTotal + deliveryCharge;
 
         document.getElementById('items-total').innerText = itemsTotal;
@@ -359,43 +355,37 @@
         const phone = document.getElementById('cust-phone').value;
         if(!name || !phone) return alert("Please enter Name and Phone");
 
-        let orderSummary = "";
+        // 1. FORMAT ORDER DETAILS
+        let orderSummary = `Customer: ${name} | Phone: ${phone} | Location: ${userLocation} | Items: `;
         for(let item in cart) {
             orderSummary += `${item} (x${cart[item].q}), `;
         }
-        orderSummary = orderSummary.replace(/,\s*$/, ""); // Clean up last comma
+        orderSummary = orderSummary.replace(/,\s*$/, "");
 
-        // FIXED: Extract values as strings to ensure they aren't lost in transmission
-        const itemsTotal = document.getElementById('items-total').innerText;
-        const deliveryCharge = document.getElementById('delivery-charge').innerText;
         const grandTotal = document.getElementById('bill-total').innerText;
 
-        // UPDATED: Using URLSearchParams for perfect data mapping to Google Sheets
-        const params = new URLSearchParams();
-        params.append("hotel", "CAKE MART | VILLAGE FRESH");
-        params.append("name", name);
-        params.append("phone", phone);
-        params.append("order", orderSummary);
-        params.append("items_total", itemsTotal);
-        params.append("delivery", deliveryCharge);
-        params.append("total", grandTotal);
-        params.append("location", userLocation);
+        // 2. MAP TO YOUR PRE-FILLED ENTRY IDs
+        const formData = new URLSearchParams();
+        formData.append("entry.1603933071", "CAKE MART | VILLAGE FRESH"); // HOTEL
+        formData.append("entry.433588684", orderSummary);                // DETAILS
+        formData.append("entry.736903222", grandTotal);                  // TOTAL
 
         document.getElementById('confirm-btn').innerText = "SENDING...";
         document.getElementById('confirm-btn').disabled = true;
 
-        fetch(SCRIPT_URL, { 
-            method: 'POST', 
-            mode: 'no-cors', // Essential for Google Web Apps to prevent CORS errors
-            body: params 
+        // 3. SEND DIRECTLY TO GOOGLE FORM
+        fetch(FORM_RESPONSE_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: formData,
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         })
         .then(() => {
             alert("Success! Your order has been placed.");
             location.reload();
         })
         .catch(err => {
-            console.error(err);
-            alert("Error sending order. Please check internet.");
+            alert("Connection error. Try again.");
             document.getElementById('confirm-btn').disabled = false;
         });
     }
