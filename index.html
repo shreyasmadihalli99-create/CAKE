@@ -9,19 +9,15 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--light); color: #333; }
 
-        /* --- HERO PAGE --- */
         #hero-page {
             height: 100vh; display: flex; flex-direction: column; justify-content: center;
             align-items: center; text-align: center;
             background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=1000');
-            background-size: cover; background-position: center; background-repeat: no-repeat;
-            color: white; padding: 20px;
+            background-size: cover; background-position: center; color: white; padding: 20px;
         }
         .start-btn { margin-top: 25px; background: var(--primary); color: white; padding: 18px 60px; border-radius: 50px; border: none; font-weight: bold; cursor: pointer; font-size: 1.2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
 
         #main-app { display: none; }
-        
-        /* Search Bar */
         .search-container { background: var(--white); padding: 10px; position: sticky; top: 0; z-index: 1001; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         #menu-search { width: 100%; padding: 12px 20px; border-radius: 25px; border: 1.5px solid #eee; font-size: 1rem; outline: none; background: #f9f9f9; }
 
@@ -34,27 +30,20 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
         .cat-banner { width: 100%; height: 160px; object-fit: cover; border-bottom: 4px solid var(--primary); margin-bottom: 10px; }
-
         .menu-item { background: var(--white); margin: 0 10px 2px; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f0f0; }
         .qty-wrap { display: flex; align-items: center; gap: 12px; }
         .qty-btn { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--primary); background: var(--white); color: var(--primary); font-weight: 900; cursor: pointer; }
 
-        /* Order Panel */
         #order-panel {
             position: fixed; bottom: 0; width: 100%; background: var(--white);
             box-shadow: 0 -10px 30px rgba(0,0,0,0.2); display: none;
             padding: 20px; border-radius: 30px 30px 0 0; z-index: 2000;
         }
         .input-field { width: 100%; padding: 14px; margin-bottom: 10px; border: 1.5px solid #ddd; border-radius: 12px; font-size: 1rem; outline: none; }
-        
         .loc-btn { background: var(--info); color: white; border: none; padding: 16px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; }
         .confirm-btn { background: var(--success); color: white; border: none; padding: 20px; border-radius: 12px; font-weight: 800; width: 100%; font-size: 1.3rem; cursor: pointer; display: none; }
         
-        #loc-status { 
-            display: none; background: #e3f2fd; color: #1565c0; padding: 12px; 
-            border-radius: 10px; text-align: center; font-weight: bold; margin-bottom: 10px; 
-            border: 1px solid #bbdefb; font-size: 0.9rem;
-        }
+        #loc-status { display: none; background: #e3f2fd; color: #1565c0; padding: 12px; border-radius: 10px; text-align: center; font-weight: bold; margin-bottom: 10px; border: 1px solid #bbdefb; }
 
         .bill-details { background: #f9f9f9; padding: 12px; border-radius: 12px; margin-top: 10px; font-size: 0.95rem; }
         .bill-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
@@ -75,39 +64,35 @@
         </div>
 
         <div class="nav-container">
-            <div class="nav-btn active" onclick="switchTab('fried_chicken', this)">Fried Chicken</div>
-            <div class="nav-btn" onclick="switchTab('pizza_cat', this)">Pizzas</div>
-            <div class="nav-btn" onclick="switchTab('burger_cat', this)">Burgers</div>
-            <div class="nav-btn" onclick="switchTab('chats_cat', this)">Chats</div>
-            <div class="nav-btn" onclick="switchTab('drinks_cat', this)">Beverages</div>
+            <div class="nav-btn active" onclick="switchTab('cakes', this)">Cakes</div>
+            <div class="nav-btn" onclick="switchTab('pastries', this)">Pastries</div>
+            <div class="nav-btn" onclick="switchTab('sweets', this)">Sweets</div>
+            <div class="nav-btn" onclick="switchTab('snacks', this)">Snacks</div>
+            <div class="nav-btn" onclick="switchTab('drinks', this)">Beverages</div>
         </div>
 
-        <div id="fried_chicken" class="tab-section active">
+        <div id="cakes" class="tab-section active">
             <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800" class="cat-banner">
             <div id="list-fried_chicken"></div>
             <div id="list-wrap_sandwich"></div>
-        </div>
-
-        <div id="pizza_cat" class="tab-section">
-            <img src="https://images.unsplash.com/photo-1551024506-0bccd828d307?w=800" class="cat-banner">
             <div id="list-chicken_pizza"></div>
             <div id="list-veg_pizza"></div>
         </div>
-
-        <div id="burger_cat" class="tab-section">
-            <img src="https://images.unsplash.com/photo-1589119908995-c6837fa14848?w=800" class="cat-banner">
+        <div id="pastries" class="tab-section">
+            <img src="https://images.unsplash.com/photo-1551024506-0bccd828d307?w=800" class="cat-banner">
             <div id="list-burger"></div>
             <div id="list-club_sandwich"></div>
-            <div id="list-samoona_sandwich"></div>
         </div>
-
-        <div id="chats_cat" class="tab-section">
-            <img src="https://images.unsplash.com/photo-1541529086526-db283c563270?w=800" class="cat-banner">
+        <div id="sweets" class="tab-section">
+            <img src="https://images.unsplash.com/photo-1589119908995-c6837fa14848?w=800" class="cat-banner">
+            <div id="list-samoona_sandwich"></div>
             <div id="list-puffs"></div>
+        </div>
+        <div id="snacks" class="tab-section">
+            <img src="https://images.unsplash.com/photo-1541529086526-db283c563270?w=800" class="cat-banner">
             <div id="list-chats"></div>
         </div>
-
-        <div id="drinks_cat" class="tab-section">
+        <div id="drinks" class="tab-section">
             <img src="https://images.unsplash.com/photo-1544145945-f904253d0c71?w=800" class="cat-banner">
             <div id="list-scoopso_icecream"></div>
             <div id="list-falooda"></div>
@@ -128,7 +113,7 @@
     <div id="order-panel">
         <input type="text" id="cust-name" class="input-field" placeholder="Full Name">
         <input type="text" id="cust-phone" class="input-field" placeholder="Phone Number" maxlength="10">
-        <div id="loc-status">Waiting for GPS...</div>
+        <div id="loc-status">Accessing GPS...</div>
         <button class="loc-btn" id="loc-btn" onclick="askLocation()">📍 SHARE LIVE LOCATION</button>
         <button class="confirm-btn" id="confirm-btn" onclick="sendOrder()">CONFIRM & SEND ORDER</button>
 
@@ -140,188 +125,33 @@
     </div>
 
 <script>
-    const FORM_ACTION = "https://docs.google.com/forms/d/e/1FAIpQLSe6-a7FLkxR36p6mqQ0E3xo5djjNLgZErgC2tM_scPmMvSVMA/formResponse";
-
+    const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSe6-a7FLkxR36p6mqQ0E3xo5djjNLgZErgC2tM_scPmMvSVMA/formResponse"; 
     let userLoc = "Not Provided";
     let cart = {};
 
     const database = {
-        fried_chicken: [
-            { name: "Fried Chicken (2 PCS)", p: 110 },
-            { name: "Fried Chicken (4 PCS)", p: 200 },
-            { name: "Fried Chicken (8 PCS)", p: 380 }
-        ],
-        wrap_sandwich: [
-            { name: "Tortilla Wrap sandwich (Chicken/Veg)", p: 100 },
-            { name: "Paratta Wrap sandwich (Chicken/Veg)", p: 100 }
-        ],
-        chicken_pizza: [
-            { name: "Normal Chicken Pizza", p: 200 },
-            { name: "SP chicken pizza", p: 240 },
-            { name: "Butter Chicken Pizza", p: 240 },
-            { name: "BBQ Chicken Pizza", p: 230 },
-            { name: "Extra Cheese (Non-Veg)", p: 30 }
-        ],
-        veg_pizza: [
-            { name: "Normal Veg Pizza", p: 150 },
-            { name: "SP Pizza", p: 220 },
-            { name: "Tomato Pizza", p: 180 },
-            { name: "Sweet Corn Pizza", p: 180 },
-            { name: "Onion Pizza", p: 150 },
-            { name: "Onion Capsicum Pizza", p: 180 },
-            { name: "Plane Cheese Pizza", p: 180 },
-            { name: "Paneer Pizza", p: 180 },
-            { name: "Veg Overload Pizza", p: 220 },
-            { name: "Extra Cheese (Veg)", p: 30 }
-        ],
-        burger: [
-            { name: "Veg Burger", p: 80 },
-            { name: "Veg cheese Burger", p: 100 },
-            { name: "Sweet Corn Burger", p: 90 },
-            { name: "Paneer Burger", p: 90 },
-            { name: "Chicken Burger", p: 110 },
-            { name: "Chicken cheese Burger", p: 120 },
-            { name: "Zingar chicken Burger", p: 160 },
-            { name: "Extra cheese", p: 30 }
-        ],
-        club_sandwich: [
-            { name: "Veg Sandwich (Club)", p: 100 },
-            { name: "Paneer Sandwich (Club)", p: 120 },
-            { name: "Chicken Sandwich (Club)", p: 140 }
-        ],
-        samoona_sandwich: [
-            { name: "Veg Sandwich (Samoona)", p: 70 },
-            { name: "Veg Cheese Sandwich (Samoona)", p: 90 },
-            { name: "Chicken Sandwich (Samoona)", p: 80 },
-            { name: "Chicken Cheese Sandwich (Samoona)", p: 100 }
-        ],
-        puffs: [
-            { name: "Egg Puff", p: 20 },
-            { name: "Paneer Puff", p: 25 },
-            { name: "Veg Puff", p: 20 }
-        ],
-        chats: [
-            { name: "French Fries", p: 80 },
-            { name: "Masala Fries", p: 90 },
-            { name: "Loaded Fries", p: 120 },
-            { name: "Chicken Nuggets 5Pcs", p: 100 },
-            { name: "Veg Nuggets 5Pcs", p: 90 },
-            { name: "Veg Finger 5Pcs", p: 90 },
-            { name: "Momos Veg 5Pcs", p: 90 },
-            { name: "Momos Chicken 5Pcs", p: 100 },
-            { name: "Shawarma", p: 120 }
-        ],
-        scoopso_icecream: [
-            { name: "Vanila", p: 50 },
-            { name: "Cocolate", p: 60 },
-            { name: "Strawberry", p: 50 },
-            { name: "Butterscotch", p: 60 }
-        ],
-        falooda: [
-            { name: "Normal Falooda", p: 90 },
-            { name: "SP Falooda", p: 130 },
-            { name: "Pista Falooda", p: 130 },
-            { name: "Royal Falooda", p: 140 },
-            { name: "Dry Fruits Falooda", p: 140 }
-        ],
-        cold: [
-            { name: "Boost Cold", p: 70 },
-            { name: "Coffee Cold", p: 70 },
-            { name: "Badam Cold", p: 70 },
-            { name: "Horlicks Cold", p: 70 }
-        ],
-        crush: [
-            { name: "Vanila Crush", p: 70 },
-            { name: "Pista", p: 80 },
-            { name: "Strawberry", p: 70 },
-            { name: "Mango", p: 70 },
-            { name: "Blue Berry", p: 70 },
-            { name: "Guava", p: 70 }
-        ],
-        fresh_fruit_juice: [
-            { name: "Watermelon", p: 60 },
-            { name: "Pineapple", p: 60 },
-            { name: "Orange", p: 60 },
-            { name: "Papaya", p: 60 },
-            { name: "Anar", p: 70 },
-            { name: "Apple", p: 80 },
-            { name: "Mango", p: 60 },
-            { name: "Guava", p: 60 },
-            { name: "Grape", p: 60 }
-        ],
-        fresh_fruit_milk_shake: [
-            { name: "Papaya Shake", p: 80 },
-            { name: "Mango Shake", p: 80 },
-            { name: "Anar Shake", p: 80 },
-            { name: "Chikku Shake", p: 80 },
-            { name: "Apple Shake", p: 80 },
-            { name: "Mixed Fruit Shake", p: 80 },
-            { name: "Kiwi Shake", p: 80 },
-            { name: "Tender Shake", p: 80 },
-            { name: "Passion Fruit Shake", p: 80 },
-            { name: "Blueberry Shake", p: 80 },
-            { name: "Strawberry Shake", p: 80 }
-        ],
-        biscuit_and_chocolate: [
-            { name: "Orio", p: 80 },
-            { name: "Dark Fantacy", p: 80 },
-            { name: "Dairy Milk", p: 80 },
-            { name: "Five Star", p: 80 },
-            { name: "Kitkat", p: 80 }
-        ],
-        fruits_salad: [
-            { name: "Fruits salad", p: 80 },
-            { name: "SP Fruits Salad", p: 100 },
-            { name: "Royal Fruit Salad", p: 130 }
-        ],
-        dry_fruits: [
-            { name: "Dry Fruits Shake", p: 120 },
-            { name: "Dates Shakes", p: 110 },
-            { name: "Badam Shake", p: 100 }
-        ],
-        lime: [
-            { name: "Fresh Lime", p: 25 },
-            { name: "SP Sarbath", p: 40 },
-            { name: "Mint Lime", p: 40 },
-            { name: "Chilli Lime", p: 30 },
-            { name: "Ginger Lime", p: 30 },
-            { name: "Pineapple Lime", p: 30 },
-            { name: "Blue Lime", p: 30 },
-            { name: "Strawberry Lime", p: 40 },
-            { name: "Orange Lime", p: 30 },
-            { name: "Milk Sarbath", p: 50 }
-        ],
-        soda: [
-            { name: "Soda Salt", p: 25 },
-            { name: "Soda Sweet", p: 30 },
-            { name: "Soda Sweet & Salt", p: 30 },
-            { name: "Chilli Soda", p: 30 },
-            { name: "Strawberry Soda", p: 30 },
-            { name: "Green Apple Soda", p: 30 },
-            { name: "Pineapple Soda", p: 30 },
-            { name: "Orange Soda", p: 30 },
-            { name: "Soda Sarbath", p: 40 }
-        ],
-        mojito: [
-            { name: "Blue Lagone Mojito", p: 70 },
-            { name: "Green Apple Mojito", p: 70 },
-            { name: "Kiwi Mojito", p: 70 },
-            { name: "Blue Berry Mojito", p: 70 },
-            { name: "Strawberry Mojito", p: 70 },
-            { name: "Watermelon Mojito", p: 70 },
-            { name: "Guva Mojito", p: 70 },
-            { name: "Pineapple Mojito", p: 70 },
-            { name: "Passion Fruit Mojito", p: 100 }
-        ],
-        lassi: [
-            { name: "Lassi Plain", p: 50 },
-            { name: "Mango Lassi", p: 50 },
-            { name: "Pista Lassi", p: 70 },
-            { name: "Strawberry Lassi", p: 50 },
-            { name: "Pineapple Lassi", p: 50 },
-            { name: "Banana Lassi", p: 50 },
-            { name: "Passion Fruit Lassi", p: 80 }
-        ]
+        fried_chicken: [{name:"Fried Chicken (2 PCS)",p:110},{name:"Fried Chicken (4 PCS)",p:200},{name:"Fried Chicken (8 PCS)",p:380}],
+        wrap_sandwich: [{name:"Tortilla Wrap sandwich (Chicken/Veg)",p:100},{name:"Paratta Wrap sandwich (Chicken/Veg)",p:100}],
+        chicken_pizza: [{name:"Normal Chicken Pizza",p:200},{name:"SP chicken pizza",p:240},{name:"Butter Chicken Pizza",p:240},{name:"BBQ Chicken Pizza",p:230},{name:"Extra Cheese",p:30}],
+        veg_pizza: [{name:"Normal Veg Pizza",p:150},{name:"SP Pizza",p:220},{name:"Tomato Pizza",p:180},{name:"Sweet Corn Pizza",p:180},{name:"Onion Pizza",p:150},{name:"Onion Capsicum Pizza",p:180},{name:"Plane Cheese Pizza",p:180},{name:"Paneer Pizza",p:180},{name:"Veg Overload Pizza",p:220},{name:"Extra Cheese",p:30}],
+        burger: [{name:"Veg Burger",p:80},{name:"Veg cheese Burger",p:100},{name:"Sweet Corn Burger",p:90},{name:"Paneer Burger",p:90},{name:"Chicken Burger",p:110},{name:"Chicken cheese Burger",p:120},{name:"Zingar chicken Burger",p:160},{name:"Extra cheese",p:30}],
+        club_sandwich: [{name:"Veg Sandwich",p:100},{name:"Paneer Sandwich",p:120},{name:"Chicken Sandwich",p:140}],
+        samoona_sandwich: [{name:"Veg Sandwich",p:70},{name:"Veg Cheese Sandwich",p:90},{name:"Chicken Sandwich",p:80},{name:"Chicken Cheese Sandwich",p:100}],
+        puffs: [{name:"Egg Puff",p:20},{name:"Paneer Puff",p:25},{name:"Veg Puff",p:20}],
+        chats: [{name:"French Fries",p:80},{name:"Masala Fries",p:90},{name:"Loaded Fries",p:120},{name:"Chicken Nuggets 5Pcs",p:100},{name:"Veg Nuggets 5Pcs",p:90},{name:"Veg Finger 5Pcs",p:90},{name:"Momos Veg 5Pcs",p:90},{name:"Momos Chicken 5Pcs",p:100},{name:"Shawarma",p:120}],
+        scoopso_icecream: [{name:"Vanila",p:50},{name:"Cocolate",p:60},{name:"Strawberry",p:50},{name:"Butterscotch",p:60}],
+        falooda: [{name:"Normal Falooda",p:90},{name:"SP Falooda",p:130},{name:"Pista Falooda",p:130},{name:"Royal Falooda",p:140},{name:"Dry Fruits Falooda",p:140}],
+        cold: [{name:"Boost Cold",p:70},{name:"Coffee Cold",p:70},{name:"Badam Cold",p:70},{name:"Horlicks Cold",p:70}],
+        crush: [{name:"Vanila Crush",p:70},{name:"Pista",p:80},{name:"Strawberry",p:70},{name:"Mango",p:70},{name:"Blue Berry",p:70},{name:"Guava",p:70}],
+        fresh_fruit_juice: [{name:"Watermelon",p:60},{name:"Pineapple",p:60},{name:"Orange",p:60},{name:"Papaya",p:60},{name:"Anar",p:70},{name:"Apple",p:80},{name:"Mango",p:60},{name:"Guava",p:60},{name:"Grape",p:60}],
+        fresh_fruit_milk_shake: [{name:"Papaya Shake",p:80},{name:"Mango Shake",p:80},{name:"Anar Shake",p:80},{name:"Chikku Shake",p:80},{name:"Apple Shake",p:80},{name:"Mixed Fruit Shake",p:80},{name:"Kiwi Shake",p:80},{name:"Tender Shake",p:80},{name:"Passion Fruit Shake",p:80},{name:"Blueberry",p:80},{name:"Strawberry",p:80}],
+        biscuit_and_chocolate: [{name:"Orio",p:80},{name:"Dark Fantacy",p:80},{name:"Dairy Milk",p:80},{name:"Five Star",p:80},{name:"Kitkat",p:80}],
+        fruits_salad: [{name:"Fruits salad",p:80},{name:"SP Fruits Salad",p:100},{name:"Royal Fruit Salad",p:130}],
+        dry_fruits: [{name:"Dry Fruits Shake",p:120},{name:"Dates Shakes",p:110},{name:"Badam Shake",p:100}],
+        lime: [{name:"Fresh Lime",p:25},{name:"SP Sarbath",p:40},{name:"Mint Lime",p:40},{name:"Chilli Lime",p:30},{name:"Ginger Lime",p:30},{name:"Pineapple Lime",p:30},{name:"Blue Lime",p:30},{name:"Strawberry Lime",p:40},{name:"Orange Lime",p:30},{name:"Milk Sarbath",p:50}],
+        soda: [{name:"Soda Salt",p:25},{name:"Soda Sweet",p:30},{name:"Soda Sweet & Salt",p:30},{name:"Chilli Soda",p:30},{name:"Strawberry Soda",p:30},{name:"Green Apple Soda",p:30},{name:"Pineapple Soda",p:30},{name:"Orange Soda",p:30},{name:"Soda Sarbath",p:40}],
+        mojito: [{name:"Blue Lagone Mojito",p:70},{name:"Green Apple Mojito",p:70},{name:"Kiwi Mojito",p:70},{name:"Blue Berry Mojito",p:70},{name:"Strawberry Mojito",p:70},{name:"Watermelon Mojito",p:70},{name:"Guva Mojito",p:70},{name:"Pineapple Mojito",p:70},{name:"Passion Fruit Mojito",p:100}],
+        lassi: [{name:"Lassi Plain",p:50},{name:"Mango Lassi",p:50},{name:"Pista Lassi",p:70},{name:"Strawberry Lassi",p:50},{name:"Pineapple Lassi",p:50},{name:"Banana Lassi",p:50},{name:"Passion Fruit Lassi",p:80}]
     };
 
     function openApp() {
@@ -335,36 +165,25 @@
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         btn.classList.add('active');
-        document.getElementById('menu-search').value = "";
-        filterMenu();
         window.scrollTo(0,0);
     }
 
     function loadMenu() {
         for (let cat in database) {
             const div = document.getElementById('list-' + cat);
-            if(div){
+            if(div) {
                 database[cat].forEach(item => {
                     div.innerHTML += `<div class="menu-item" data-name="${item.name}" data-price="${item.p}">
-                        <span style="font-weight:700">${item.name} <br><small>₹${item.p}</small></span>
+                        <span><b>${item.name}</b><br>₹${item.p}</span>
                         <div class="qty-wrap">
                             <button class="qty-btn" onclick="updateQty('${item.name}', -1, this)">-</button>
-                            <span class="val" style="font-weight:900">0</span>
+                            <span class="val">0</span>
                             <button class="qty-btn" onclick="updateQty('${item.name}', 1, this)">+</button>
                         </div>
                     </div>`;
                 });
             }
         }
-    }
-
-    function filterMenu() {
-        let input = document.getElementById('menu-search').value.toLowerCase();
-        let items = document.querySelectorAll('.menu-item');
-        items.forEach(item => {
-            let name = item.getAttribute('data-name').toLowerCase();
-            item.style.display = name.includes(input) ? "flex" : "none";
-        });
     }
 
     function updateQty(name, val, btn) {
@@ -391,12 +210,10 @@
     function askLocation() {
         const statusBox = document.getElementById('loc-status');
         statusBox.style.display = "block";
-        statusBox.innerText = "⏳ Accessing GPS...";
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition((pos) => {
                 userLoc = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
                 statusBox.innerText = "✅ Location Locked!";
-                statusBox.style.background = "#e8f5e9";
                 document.getElementById('loc-btn').style.display = "none";
                 document.getElementById('confirm-btn').style.display = "block";
             }, () => { alert("Please enable GPS."); });
@@ -406,21 +223,24 @@
     function sendOrder() {
         const name = document.getElementById('cust-name').value;
         const phone = document.getElementById('cust-phone').value;
-        const total = document.getElementById('bill-total').innerText;
-        if(!name || !phone) return alert("Fill Name and Phone!");
+        if(!name || phone.length < 10) return alert("Enter Name & 10-digit Phone");
 
-        let summary = `CUSTOMER: ${name}\nPHONE: ${phone}\nLOC: ${userLoc}\n\nORDER:\n`;
-        for(let k in cart) summary += `- ${k} (x${cart[k].q})\n`;
+        let orderTxt = `NAME: ${name}\nPHONE: ${phone}\nLOC: ${userLoc}\n\nITEMS:\n`;
+        for(let item in cart) orderTxt += `- ${item} x${cart[item].q}\n`;
 
         const data = new URLSearchParams();
-        data.append('entry.1603933071', "Cake Mart");
-        data.append('entry.433588684', summary);
-        data.append('entry.736903222', total);
+        data.append('entry.1603933071', "Cake Mart"); 
+        data.append('entry.433588684', orderTxt); 
+        data.append('entry.736903222', "₹" + document.getElementById('bill-total').innerText);
 
-        fetch(FORM_ACTION, { method: 'POST', mode: 'no-cors', body: data })
-        .then(() => {
-            alert("SUCCESS! ORDER PLACED.");
-            location.reload();
+        fetch(FORM_URL, { method: 'POST', mode: 'no-cors', body: data })
+        .then(() => { alert("ORDER PLACED!"); location.reload(); });
+    }
+
+    function filterMenu() {
+        let input = document.getElementById('menu-search').value.toLowerCase();
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.style.display = item.getAttribute('data-name').toLowerCase().includes(input) ? "flex" : "none";
         });
     }
 </script>
