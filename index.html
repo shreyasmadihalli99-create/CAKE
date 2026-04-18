@@ -25,7 +25,7 @@
         .nav-btn { padding: 10px 22px; background: var(--white); border: 2px solid var(--primary); border-radius: 25px; white-space: nowrap; color: var(--primary); font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 0.7rem; }
         .nav-btn.active { background: var(--primary); color: var(--white); }
 
-        .tab-section { display: none; padding-bottom: 450px; }
+        .tab-section { display: none; padding-bottom: 500px; }
         .tab-section.active { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
@@ -42,15 +42,20 @@
             position: fixed; bottom: 0; width: 100%; background: var(--white);
             box-shadow: 0 -10px 30px rgba(0,0,0,0.2); display: none;
             padding: 20px; border-radius: 30px 30px 0 0; z-index: 2000;
+            max-height: 85vh; overflow-y: auto;
         }
         .input-field { width: 100%; padding: 14px; margin-bottom: 10px; border: 1.5px solid #ddd; border-radius: 12px; font-size: 1rem; outline: none; }
         .loc-btn { background: var(--info); color: white; border: none; padding: 16px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; margin-bottom: 10px; }
         .confirm-btn { background: var(--success); color: white; border: none; padding: 18px; border-radius: 12px; font-weight: 800; width: 100%; font-size: 1.2rem; cursor: pointer; display: none; }
         
         #loc-status { display: none; background: #e3f2fd; color: #1565c0; padding: 12px; border-radius: 10px; text-align: center; font-weight: bold; margin-bottom: 10px; font-size: 0.9rem; }
+        
+        /* New Summary Box */
+        .order-summary-box { background: #fffde7; padding: 12px; border-radius: 12px; border: 1px dashed #fbc02d; margin-bottom: 15px; font-size: 0.9rem; }
+        .summary-title { font-weight: bold; color: #f57f17; display: block; margin-bottom: 5px; text-transform: uppercase; }
+        
         .bill-details { background: #f9f9f9; padding: 12px; border-radius: 12px; text-align: center; font-size: 0.9rem; }
         .grand-total { font-weight: 900; color: var(--primary); font-size: 1.3rem; display: block; margin-top: 5px; }
-        .delivery-text { color: #666; font-size: 0.8rem; }
     </style>
 </head>
 <body>
@@ -67,11 +72,18 @@
     </div>
 
     <div id="order-panel">
-        <input type="text" id="cust-name" class="input-field" placeholder="Your Name" required>
+        <div class="order-summary-box">
+            <span class="summary-title">Your Selection:</span>
+            <div id="display-order-items"></div>
+        </div>
+
+        <input type="text" id="cust-name" class="input-field" placeholder="Full Name" required>
         <input type="number" id="cust-phone" class="input-field" placeholder="Phone Number" required>
+        
         <div id="loc-status">Checking GPS...</div>
         <button class="loc-btn" id="loc-btn" onclick="askLocation()">📍 SHARE DELIVERY LOCATION</button>
         <button class="confirm-btn" id="confirm-btn" onclick="sendOrder()">CONFIRM ORDER</button>
+        
         <div class="bill-details">
             <div>Items: ₹<span id="items-total">0</span> | Delivery: ₹<span id="delivery-charge">0</span></div>
             <span class="grand-total">Total: ₹<span id="bill-total">0</span></span>
@@ -80,7 +92,7 @@
 
 <script>
     let cart = {};
-    let globalLocation = "Not Provided"; // Variable to store the link
+    let globalLocation = "Location Not Shared";
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzhr6y28m_185tLZIotXLcx00thGIrKNYDWSiXDVNDGgG3FdmbG44NBKx48otg2e__D/exec";
 
     const database = {
@@ -326,19 +338,21 @@
 
     function updateTotal() {
         let itemsTotal = 0;
-        for(let id in cart) itemsTotal += (cart[id].q * cart[id].p);
+        let summaryHtml = "";
         
+        for(let id in cart) {
+            itemsTotal += (cart[id].q * cart[id].p);
+            summaryHtml += `• ${id} (x${cart[id].q})<br>`;
+        }
+        
+        document.getElementById('display-order-items').innerHTML = summaryHtml || "No items selected";
+
         let deliveryCharge = 0;
         if (itemsTotal > 0) {
-            if (itemsTotal < 100) {
-                deliveryCharge = 15;
-            } else {
-                deliveryCharge = Math.round(itemsTotal * 0.15);
-            }
+            deliveryCharge = (itemsTotal < 100) ? 15 : Math.round(itemsTotal * 0.15);
         }
 
         const grandTotal = itemsTotal + deliveryCharge;
-
         document.getElementById('items-total').innerText = itemsTotal;
         document.getElementById('delivery-charge').innerText = deliveryCharge;
         document.getElementById('bill-total').innerText = grandTotal;
@@ -349,58 +363,42 @@
         if (navigator.geolocation) {
             document.getElementById('loc-status').style.display = 'block';
             document.getElementById('loc-status').innerText = "Locating you...";
-            
             navigator.geolocation.getCurrentPosition((pos) => {
-                // SUCCESS: Save the location link
-                const lat = pos.coords.latitude;
-                const lng = pos.coords.longitude;
-                globalLocation = `https://www.google.com/maps?q=${lat},${lng}`;
-                
+                globalLocation = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
                 document.getElementById('loc-status').innerText = "✅ Location Locked";
                 document.getElementById('loc-btn').style.display = 'none';
                 document.getElementById('confirm-btn').style.display = 'block';
-            }, () => { 
-                alert("GPS Error. Please allow location access to order."); 
-                document.getElementById('loc-status').innerText = "❌ GPS Required";
-            }, {enableHighAccuracy: true});
+            }, () => { alert("Error: Please enable GPS."); });
         }
     }
 
     function sendOrder() {
         const name = document.getElementById('cust-name').value;
         const phone = document.getElementById('cust-phone').value;
-        
-        if(!name || !phone) {
-            alert("Please enter Name and Phone");
-            return;
-        }
+        if(!name || !phone) return alert("Please fill details");
 
-        let orderSummary = "";
-        for(let item in cart) {
-            orderSummary += `${item} (x${cart[item].q}), `;
-        }
-
-        const grandTotal = document.getElementById('bill-total').innerText;
+        let orderString = "";
+        for(let item in cart) { orderString += `${item} (x${cart[item].q}), `; }
 
         const formData = new FormData();
-        // Matching your Sheet Columns: A=Time, B=Hotel, C=Name, D=Phone, E=Order, F=Total, G=Link
-        formData.append("hotel_name", "Village Fresh");
+        // COLUMNS: A=Time(Auto), B=Hotel, C=Customer, D=Phone, E=Details, F=Total, G=Location
+        formData.append("hotel_name", "Village Fresh"); 
         formData.append("name", name);
         formData.append("phone", phone);
-        formData.append("order", orderSummary);
-        formData.append("total", grandTotal);
+        formData.append("order", orderString);
+        formData.append("total", document.getElementById('bill-total').innerText);
         formData.append("location", globalLocation);
 
-        document.getElementById('confirm-btn').innerText = "SENDING...";
+        document.getElementById('confirm-btn').innerText = "PLACING ORDER...";
         document.getElementById('confirm-btn').disabled = true;
 
         fetch(SCRIPT_URL, { method: 'POST', body: formData })
         .then(() => {
-            alert("Success! Your order has been placed.");
+            alert("Order Placed Successfully!");
             location.reload();
         })
-        .catch(err => {
-            alert("Error sending order. Please check internet.");
+        .catch(() => {
+            alert("Connection error.");
             document.getElementById('confirm-btn').innerText = "CONFIRM ORDER";
             document.getElementById('confirm-btn').disabled = false;
         });
