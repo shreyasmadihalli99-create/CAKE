@@ -207,6 +207,9 @@
     </div>
 
     <script>
+        // GOOGLE SCRIPT WEB APP URL
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzTmpn70SS1WAS5_6cc4_H2j2UgZXQAC0WLA395d0y0JIDGf4atlcSittbczA2CobDu/exec";
+        
         const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfYGXB2Lim7wtiFCYy8U7MtV9DN9X2Tm7zSkx-qYxPLSLRcUg/formResponse";
         const ENTRY_DETAILS = "entry.1304197339";
         const ENTRY_TOTAL = "entry.248975380";
@@ -422,25 +425,24 @@
                 }
             } catch (e) { console.error("Firebase fail:", e); }
 
-            // 2. Send to Google Sheets (Via Form Response)
-            const fullDetails = `NAME: ${name} | TEL: ${phone} | LOC: ${userLocation} | ORDER: ${itemsSummary}`;
-            
-            const formData = new URLSearchParams();
-            formData.append(ENTRY_HOTEL, "Cake Mart");
-            formData.append(ENTRY_DETAILS, fullDetails);
-            formData.append(ENTRY_TOTAL, "₹" + finalPrice);
+            // 2. Send to Google Sheets (Via your Web App Script)
+            const orderData = new URLSearchParams();
+            orderData.append("hotel", "Cake Mart");
+            orderData.append("name", name);
+            orderData.append("phone", phone);
+            orderData.append("items", itemsSummary);
+            orderData.append("total", "₹" + finalPrice);
+            orderData.append("location", userLocation);
 
-            fetch(FORM_URL, { 
+            fetch(SCRIPT_URL, { 
                 method: 'POST', 
                 mode: 'no-cors', 
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: formData 
+                body: orderData 
             })
             .then(() => { 
                 document.getElementById('success-overlay').style.display = 'flex'; 
             })
             .catch(() => {
-                // If it fails but Firebase succeeded, we still show success to customer
                 document.getElementById('success-overlay').style.display = 'flex';
             });
         }
