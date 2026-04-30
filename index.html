@@ -2,445 +2,541 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cake Mart | Premium Bakery & Cafe</title>
-    
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyBc7nQQ558jsA8oagdSuiXqH9IVBBBp-EQ",
-            authDomain: "rapidroute-1d14d.firebaseapp.com",
-            projectId: "rapidroute-1d14d",
-            storageBucket: "rapidroute-1d14d.firebasestorage.app",
-            messagingSenderId: "785713080550",
-            appId: "1:785713080550:web:ad14ddcc23630b01ffb327"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        
-        // Export to window so our placeOrder function can see them
-        window.db = db;
-        window.addDoc = addDoc;
-        window.collection = collection;
-        window.serverTimestamp = serverTimestamp;
-    </script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hukkeri Dhaba | Official</title>
     <style>
         :root {
-            --primary: #d35400; /* Richer European Orange/Brown */
-            --dark: #2c3e50;
-            --light: #fdfefe;
-            --danger: #c0392b;
+            --red: #ff7003;
+            --orange: #ff7003;
+            --white: #fefefe;
+            --dark: #1a1a1a;
+            --light-bg: #fdfdfd;
+            --danger: #e74c3c;
             --success: #27ae60;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        body {
-            font-family: 'Playfair Display', serif, -apple-system, sans-serif;
-            margin: 0;
-            background-color: var(--light);
+        body, html {
+            margin: 0; padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--white);
             color: var(--dark);
-            scroll-behavior: smooth;
         }
 
-        /* --- ADMIN INTERFACE --- */
-        #admin-star { position: fixed; bottom: 20px; right: 20px; z-index: 9999; font-size: 24px; cursor: pointer; opacity: 0.2; background: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        #admin-panel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 10000; padding: 20px; overflow-y: auto; }
-        .admin-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); padding-bottom: 15px; margin-bottom: 20px; }
-        .admin-item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #eee; }
-        .status-btn { padding: 8px 15px; border: none; border-radius: 5px; font-weight: bold; font-size: 12px; cursor: pointer; min-width: 70px; }
-        .btn-on { background: var(--success); color: white; }
-        .btn-off { background: var(--danger); color: white; }
-
-        /* --- UI ELEMENTS --- */
-        #landing-page { 
-            height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: center; 
-            align-items: center; 
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1550617931-e17a7b70dce2?w=1200'); 
-            background-size: cover; 
-            background-position: center; 
-            text-align: center; 
-            padding: 20px; 
+        /* --- SECRET ADMIN STAR --- */
+        #admin-star {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            font-size: 20px;
+            opacity: 0.1; 
+            background: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        .cafe-title { color: white; font-size: 3.5rem; margin: 0; font-weight: 800; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
-        .enter-btn { margin-top: 25px; background: var(--primary); color: white; padding: 18px 60px; border-radius: 50px; border: none; font-size: 1.1rem; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: 0.3s; }
 
-        #menu-container { display: none; padding-bottom: 50vh; }
-        .category-nav { position: sticky; top: 0; z-index: 1000; background: white; display: flex; overflow-x: auto; padding: 12px 8px; gap: 8px; border-bottom: 1px solid #ddd; scrollbar-width: none; }
-        .category-nav::-webkit-scrollbar { display: none; }
-        .nav-item { padding: 8px 16px; background: #f2f2f2; border-radius: 20px; white-space: nowrap; font-size: 0.85rem; text-decoration: none; color: #444; font-weight: 700; }
+        #admin-panel {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: white;
+            z-index: 10000;
+            padding: 20px;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
 
-        .section-img { width: 100%; height: 180px; object-fit: cover; display: block; }
-        .section-header { padding: 18px; font-size: 1.4rem; font-weight: 800; color: var(--primary); background: white; border-bottom: 1px solid #eee; text-transform: uppercase; letter-spacing: 1px; }
+        .admin-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #eee; }
+        .status-btn { padding: 8px 15px; border: none; border-radius: 5px; color: white; font-weight: bold; cursor: pointer; }
+        .btn-on { background: var(--success); }
+        .btn-off { background: var(--danger); }
 
-        .menu-card { background: white; margin-bottom: 1px; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .item-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; display: block; color: #333; }
-        
-        .price-text { font-weight: 800; font-size: 1.1rem; color: #000; display: block; }
-        .qty-box { display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin-top: 5px; }
-        .btn-circle { width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid var(--primary); background: white; color: var(--primary); font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        /* --- HERO PAGE --- */
+        #hero-section {
+            height: 100vh;
+            width: 100%;
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
+                        url('https://tse3.mm.bing.net/th/id/OIP.ZqOM4pyTyudhToF13jO9QQHaE7?pid=Api&P=0&h=180p'); 
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+            position: fixed;
+            top: 0; left: 0; z-index: 5000;
+            transition: transform 0.7s ease-in-out;
+        }
 
-        #cart-box { position: fixed; bottom: 0; left: 0; width: 100%; max-height: 85vh; background: white; box-shadow: 0 -5px 25px rgba(0,0,0,0.2); z-index: 2000; display: none; flex-direction: column; border-top-left-radius: 25px; border-top-right-radius: 25px; padding: 20px; }
-        .details-input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 10px; font-size: 1rem; }
-        .loc-btn { background: #2980b9; color: white; border: none; padding: 14px; border-radius: 10px; font-weight: 700; margin-bottom: 12px; width: 100%; cursor: pointer; }
-        #cart-items-list { flex-grow: 1; overflow-y: auto; font-size: 0.9rem; margin-bottom: 12px; border-bottom: 1px solid #eee; max-height: 180px; }
-        .cart-row { display: flex; justify-content: space-between; padding: 6px 0; }
-        .fee-row { display: flex; justify-content: space-between; padding: 3px 0; font-size: 0.8rem; color: #7f8c8d; }
-        .cart-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 15px; }
-        .order-btn { background: var(--success); color: white; border: none; padding: 14px 30px; border-radius: 10px; font-weight: 800; font-size: 1.1rem; display: none; cursor: pointer; }
+        #hero-section.hide { transform: translateY(-100%); }
 
-        #success-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 5000; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
-        footer { padding: 50px 20px 180px; text-align: center; background: #fafafa; font-size: 0.85rem; color: #95a5a5; border-top: 1px solid #eee; }
+        .hero-title { font-size: 3.5rem; margin: 0; font-weight: 900; text-transform: uppercase; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); }
+        .hero-tag { font-size: 1.1rem; letter-spacing: 5px; margin-top: 10px; opacity: 0.9; }
+
+        .start-btn {
+            margin-top: 40px;
+            background: var(--orange);
+            color: white;
+            padding: 20px 60px;
+            font-size: 1.2rem;
+            font-weight: 800;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: 0.3s;
+        }
+
+        /* --- MENU PAGE --- */
+        #menu-wrapper {
+            display: none;
+            max-width: 600px;
+            margin: 0 auto;
+            padding-bottom: 350px; 
+        }
+
+        .tab-bar {
+            position: sticky;
+            top: 0;
+            background: rgba(255,255,255,0.98);
+            backdrop-filter: blur(10px);
+            display: flex;
+            overflow-x: auto;
+            padding: 15px;
+            gap: 12px;
+            z-index: 1000;
+            border-bottom: 1px solid #eee;
+            scrollbar-width: none;
+        }
+        .tab-bar::-webkit-scrollbar { display: none; }
+
+        .tab {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            border-radius: 50px;
+            font-weight: 700;
+            white-space: nowrap;
+            cursor: pointer;
+            font-size: 0.85rem;
+            border: none;
+        }
+        .tab.active { background: var(--red); color: white; }
+
+        .category-image-header {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            border-bottom: 4px solid var(--red);
+        }
+
+        .cat-name {
+            padding: 20px 20px 5px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--red);
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .menu-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #f2f2f2;
+        }
+
+        .item-text b { font-size: 1rem; display: block; margin-bottom: 4px; }
+        .item-text span { color: var(--red); font-weight: 800; font-size: 1rem; }
+
+        .qty-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #fff5f5;
+            padding: 5px 10px;
+            border-radius: 50px; 
+            border: 1px solid #ffdada;
+        }
+
+        .qty-btn { 
+            width: 32px; height: 32px; border: none; 
+            background: var(--red); color: white; 
+            font-size: 1.2rem; font-weight: bold; 
+            cursor: pointer; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .cart-panel {
+            position: fixed;
+            bottom: 0; left: 50%;
+            transform: translateX(-50%) translateY(100%);
+            width: 100%; max-width: 600px;
+            background: white;
+            padding: 25px;
+            border-radius: 25px 25px 0 0;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
+            transition: 0.4s ease;
+            z-index: 4000;
+            box-sizing: border-box;
+        }
+        .cart-panel.active { transform: translateX(-50%) translateY(0); }
+
+        .fee-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%; padding: 12px; margin-bottom: 8px;
+            border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;
+        }
+
+        .wp-btn {
+            background: var(--red);
+            color: white; width: 100%;
+            padding: 18px; border: none;
+            border-radius: 8px; font-weight: 800;
+            font-size: 1.1rem; cursor: pointer;
+            text-transform: uppercase;
+        }
     </style>
 </head>
 <body>
 
-    <div id="admin-star" onclick="checkAdmin()">★</div>
+    <div id="admin-star" onclick="openAdmin()">★</div>
 
     <div id="admin-panel">
-        <div class="admin-header">
-            <h2 style="margin:0; color:var(--primary)">Cake Mart Inventory</h2>
-            <button onclick="closeAdmin()" style="padding:10px; border-radius:8px; border:none; background:#333; color:white;">CLOSE</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid #eee; margin-bottom: 10px;">
+            <h2>Stock Manager</h2>
+            <button onclick="location.reload()" style="padding:10px; background:#333; color:white; border:none; border-radius:5px; cursor:pointer;">CLOSE</button>
         </div>
-        <div id="admin-controls-list"></div>
+        <div id="admin-list"></div>
     </div>
 
-    <div id="success-overlay">
-        <h2 style="color: var(--success);">✔ Order Confirmed!</h2>
-        <p>Your Cake Mart treasures are being prepared.</p>
-        <button class="enter-btn" onclick="location.reload()">Return to Shop</button>
-    </div>
+    <section id="hero-section">
+        <h1 class="hero-title">Hukkeri Dhaba</h1>
+        <p class="hero-tag">ROYAL INDIAN DINING</p>
+        <button class="start-btn" onclick="openMenu()">Explore Menu</button>
+    </section>
 
-    <div id="landing-page">
-        <h1 class="cafe-title">Cake Mart</h1>
-        <p style="color:white; font-size: 1.2rem;">European Pastries & Gourmet Delights</p>
-        <button class="enter-btn" onclick="openMenu()">Explore Menu</button>
-    </div>
+    <main id="menu-wrapper">
+        <div class="tab-bar" id="category-nav"></div>
+        <img id="dynamic-cat-img" class="category-image-header" src="" alt="Section">
+        <h2 id="dynamic-title" class="cat-name"></h2>
+        <div id="items-list"></div>
 
-    <div id="menu-container">
-        <div class="category-nav">
-            <a href="#fried-chicken" class="nav-item">Fried Chicken</a>
-            <a href="#chicken-pizzas" class="nav-item">Chicken Pizzas</a>
-            <a href="#veg-pizzas" class="nav-item">Veg Pizzas</a>
-            <a href="#burgers" class="nav-item">Burgers</a>
-            <a href="#sandwiches" class="nav-item">Wraps & Sandwiches</a>
-            <a href="#chats" class="nav-item">Starters & Sides</a>
-            <a href="#beverages" class="nav-item">Beverages & Shakes</a>
-            <a href="#desserts" class="nav-item">Desserts & Falooda</a>
-        </div>
-
-        <section id="fried-chicken">
-            <img src="https://images.unsplash.com/photo-1569058242253-92a9c71f9867?w=800" class="section-img">
-            <div class="section-header">Crispy Fried Chicken</div>
-            <div id="list-fried-chicken"></div>
-        </section>
-
-        <section id="chicken-pizzas">
-            <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800" class="section-img">
-            <div class="section-header">Chicken Pizzas</div>
-            <div id="list-chicken-pizzas"></div>
-        </section>
-
-        <section id="veg-pizzas">
-            <img src="https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?w=800" class="section-img">
-            <div class="section-header">Veg Pizzas</div>
-            <div id="list-veg-pizzas"></div>
-        </section>
-
-        <section id="burgers">
-            <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?w=800" class="section-img">
-            <div class="section-header">Artisan Burgers</div>
-            <div id="list-burgers"></div>
-        </section>
-
-        <section id="sandwiches">
-            <img src="https://images.unsplash.com/photo-1553909489-cd47e0907980?w=800" class="section-img">
-            <div class="section-header">Wraps & Sandwiches</div>
-            <div id="list-sandwiches"></div>
-        </section>
-
-        <section id="chats">
-            <img src="https://images.unsplash.com/photo-1626132646549-9403883a9925?w=800" class="section-img">
-            <div class="section-header">Chats & Starters</div>
-            <div id="list-chats"></div>
-        </section>
-
-        <section id="beverages">
-            <img src="https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=800" class="section-img">
-            <div class="section-header">European Beverages</div>
-            <div id="list-beverages"></div>
-        </section>
-
-        <section id="desserts">
-            <img src="https://images.unsplash.com/photo-1587314168485-3236d6710814?w=800" class="section-img">
-            <div class="section-header">Sweet Finishes</div>
-            <div id="list-desserts"></div>
-        </section>
-
-        <footer>
-            <p><strong>Cake Mart - The European Bakery</strong></p>
-            <p>Packing: Pizza ₹10 | Others ₹5</p>
-        </footer>
-    </div>
-
-    <div id="cart-box">
-        <div style="font-weight: 800; margin-bottom: 12px; color: var(--primary); font-size: 1.2rem;">Your Selection</div>
-        <input type="text" id="cust-name" class="details-input" placeholder="Customer Name" oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '');">
-        <input type="tel" id="cust-phone" class="details-input" placeholder="10-Digit Phone" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
-        <button id="loc-btn" class="loc-btn" onclick="getLocation()">📍 Set Delivery Location</button>
-        <div id="cart-items-list"></div>
-        <div id="fees-container">
-            <div class="fee-row"><span>Eco-Packing Charge</span><span id="pack-total">₹0</span></div>
-            <div class="fee-row"><span id="delivery-label">Service & Delivery</span><span id="delivery-charge-total">₹0</span></div>
-        </div>
-        <div class="cart-footer">
-            <div>
-                <span id="cart-total-qty" style="font-size: 0.9rem; color: #7f8c8d;">0 Items</span><br>
-                <span style="font-size: 1.4rem; font-weight: 800;">Total: ₹<span id="cart-total-price">0</span></span>
+        <div class="cart-panel" id="cart-footer">
+            <input type="text" id="c-name" class="form-input" placeholder="Your Full Name">
+            <input type="tel" id="c-phone" class="form-input" placeholder="Mobile Number" maxlength="10">
+            
+            <div style="border-top: 1px dashed #ccc; padding-top: 15px; margin-bottom: 10px;">
+                <div class="fee-row"><span>Items Total</span><span id="display-subtotal">₹0</span></div>
+                <div class="fee-row"><span id="delivery-label">Delivery Charge</span><span id="display-delivery">₹0</span></div>
             </div>
-            <button id="main-order-btn" class="order-btn" onclick="placeOrderDual()">Place Order</button>
+
+            <div style="display:flex; justify-content:space-between; font-weight:900; font-size:1.5rem; margin: 15px 0;">
+                <span>Grand Total:</span>
+                <span style="color:var(--red);">₹<span id="final-total">0</span></span>
+            </div>
+            <button id="loc-btn" class="wp-btn" style="background: var(--orange);" onclick="getLocation()">📍 Share Location to Order</button>
+            <button id="confirm-btn" class="wp-btn" onclick="confirmOrder()" style="display: none;">Confirm Order</button>
         </div>
-    </div>
+    </main>
 
-    <script>
-        const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfYGXB2Lim7wtiFCYy8U7MtV9DN9X2Tm7zSkx-qYxPLSLRcUg/formResponse";
-        const ENTRY_DETAILS = "entry.1304197339";
-        const ENTRY_TOTAL = "entry.248975380";
-        const ENTRY_HOTEL = "entry.164020655";
+<script type="module">
+    // --- FIREBASE INTEGRATION ---
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        let userLocation = "";
-        let cart = {};
-        let unavailableItems = JSON.parse(localStorage.getItem('cakemart_unavailable')) || {};
+    const firebaseConfig = {
+        apiKey: "AIzaSyBc7nQQ558jsA8oagdSuiXqH9IVBBBp-EQ",
+        authDomain: "rapidroute-1d14d.firebaseapp.com",
+        projectId: "rapidroute-1d14d",
+        storageBucket: "rapidroute-1d14d.firebasestorage.app",
+        messagingSenderId: "785713080550",
+        appId: "1:785713080550:web:ad14ddcc23630b01ffb327"
+    };
 
-        const finalMenu = {
-            "fried_chicken": [
-                { id: "fc1", name: "Fried Chicken 2 PCS", p: 110 },
-                { id: "fc2", name: "Fried Chicken 4 PCS", p: 200 },
-                { id: "fc3", name: "Fried Chicken 8 PCS", p: 380 }
-            ],
-            "chicken_pizzas": [
-                { id: "cp1", name: "Normal Chicken Pizza", p: 200 },
-                { id: "cp2", name: "SP Chicken Pizza", p: 240 },
-                { id: "cp3", name: "Butter Chicken Pizza", p: 240 },
-                { id: "cp4", name: "BBQ Chicken Pizza", p: 230 },
-                { id: "cp5", name: "Extra Cheese Add-on", p: 30 }
-            ],
-            "veg_pizzas": [
-                { id: "vp1", name: "Classic Veg Pizza", p: 150 },
-                { id: "vp2", name: "SP Veg Pizza", p: 220 },
-                { id: "vp3", name: "Tomato Pizza", p: 180 },
-                { id: "vp3b", name: "onion Pizza", p: 150 },
-                { id: "vp4", name: "Sweet Corn Pizza", p: 180 },
-                { id: "vp5", name: "Veg Overload Pizza", p: 220 },
-                { id: "vp6", name: "onion capsicum Pizza", p: 180 },
-                { id: "vp7", name: "Plane chees Pizza", p: 180 },
-                { id: "vp8", name: "paneer Pizza", p: 180 },
-                { id: "vp9", name: "veg overlod Pizza", p: 220 }
-            ],
-            "burgers": [
-                { id: "br1", name: "Gourmet Veg Burger", p: 80 },
-                { id: "br2", name: "Paneer / Cheese Burger", p: 100 },
-                { id: "br3", name: "Signature Chicken Burger", p: 110 },
-                { id: "br4", name: "Zingar Chicken Burger", p: 160 }
-            ],
-            "sandwiches": [
-                { id: "sw1", name: "Tortilla / Paratta Wrap", p: 100 },
-                { id: "sw2", name: "Club Sandwich (Veg/Chicken)", p: 120 },
-                { id: "sw3", name: "Samoona Sandwich", p: 80 },
-                { id: "pf1", name: "Butter Puffs (Egg/Veg/Paneer)", p: 25 }
-            ],
-            "chats": [
-                { id: "ch1", name: "French Fries (Classic/Masala)", p: 90 },
-                { id: "ch2", name: "Loaded Fries", p: 120 },
-                { id: "ch3", name: "Momos (Veg/Chicken)", p: 100 },
-                { id: "ch4", name: "Shawarma Roll", p: 120 }
-            ],
-            "beverages": [
-                { id: "bv1", name: "Fruit Juice / Shakes", p: 80 },
-                { id: "bv2", name: "Cold Coffee / Boost", p: 70 },
-                { id: "bv3", name: "Mojitos (All Flavors)", p: 70 },
-                { id: "bv4", name: "Lassi (Mango/Pista/Fruit)", p: 70 }
-            ],
-            "desserts": [
-                { id: "ds1", name: "Normal Falooda", p: 90 },
-                { id: "ds2", name: "Royal / Dry Fruit Falooda", p: 140 },
-                { id: "ds3", name: "Gourmet Scoop Icecream", p: 60 }
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // --- YOUR ORIGINAL DATA & VARIABLES ---
+    let cart = {};
+    let userLocationURL = ""; 
+    let disabledItems = JSON.parse(localStorage.getItem('hukkeri_stock')) || {};
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyej0SiPSwZyouZ23p_CkJpi7myoN9LUsEbIpmm2OhPetl-2jQS05hbfCQgwER5xoB5/exec";
+
+    const fullMenuData = {
+        "Non-Veg Handi": {
+            img: "https://img.freepik.com/premium-photo/dum-handi-chicken-biryani-is-prepared-earthen-clay-pot-called-haandi-popular-indian-non-vegetarian-food_466689-52225.jpg?w=1380",
+            items: [
+                {n: "Chicken Masala- Half", p: 350}, {n: "Chicken Masala- Full", p: 550},
+                {n: "Chicken Kolhapuri-Half", p: 370}, {n: "Chicken Kolhapuri-Full", p: 580},
+                {n: "Chicken Makhanwala-Half", p: 370}, {n: "Chicken Makhanwala-Full", p: 580},
+                {n: "Chicken Hyderabadi - Half", p: 380}, {n: "Chicken Hyderabadi - Full", p: 580},
+                {n: "Chicken Malwani- Half", p: 380}, {n: "Chicken Malwani- Full", p: 580},
+                {n: "Chicken Koriyan - Half", p: 390}, {n: "Chicken Koriyan - Full", p: 600},
+                {n: "Chicken Mughlai - Half", p: 390}, {n: "Chicken Mughlai - Full", p: 600}
             ]
-        };
-
-        function checkAdmin() {
-            const pass = prompt("Enter Cake Mart Admin Code:");
-            if (pass === "20106669") openAdmin();
+        },
+        "Dum Biryani": {
+            img: "https://tse3.mm.bing.net/th/id/OIP.ZqOM4pyTyudhToF13jO9QQHaE7?pid=Api&P=0&h=180",
+            items: [
+                {n: "Chicken Biryani- Pav", p: 100}, {n: "Chicken Biryani- Half", p: 130},
+                {n: "Chicken Biryani- Full", p: 180}, {n: "Egg Biryani- Half", p: 120},
+                {n: "Egg Biryani- Full", p: 170}, {n: "Spesial Veg Biryani-Full", p: 180},
+                {n: "Paneer Biryani- Full", p: 180}
+            ]
+        },
+        "Non-Veg Starters": {
+            img: "https://images.unsplash.com/photo-1562967914-608f82629710?w=800&q=80",
+            items: [
+                {n: "Boiled Egg", p: 30}, {n: "Egg Bhurji", p: 60},
+                {n: "Egg Sukka Fry", p: 100}, {n: "Egg Pakoda", p: 100},
+                {n: "Egg 1/2 Fry", p: 40}, {n: "Amlet", p: 40},
+                {n: "Chicken 65", p: 120}, {n: "Chicken Dry", p: 170},
+                {n: "Chicken Kabab (Bonless 6-pis)", p: 180},
+                {n: "Chicken Sukka", p: 140}, {n: "Chicken Lolipop Dry (3-pis)", p: 120},
+                {n: "Chicken Lolipop Masala (3-pis)", p: 130}
+            ]
+        },
+        "Egg & Chicken Dish": {
+            img: "https://tse3.mm.bing.net/th/id/OIP.Ycqsj6DUHBjV4hTDmZPpfgHaE7?pid=Api&P=0&h=180",
+            items: [
+                {n: "Egg Curry", p: 80}, {n: "Egg Masala", p: 95},
+                {n: "Egg Kolhapuri", p: 95}, {n: "Egg Makhanwala", p: 95},
+                {n: "Egg Hyderabadi", p: 100}, {n: "Egg Sukka", p: 95},
+                {n: "Egg D.K (Mugalai)", p: 100}, {n: "Chicken Masala", p: 140},
+                {n: "Chicken Kolhapuri", p: 140}, {n: "Chicken Makhanwala", p: 140},
+                {n: "Chicken Hyderabadi", p: 150}, {n: "Chicken Sukka", p: 140}
+            ]
+        },
+        "Thali Specials": {
+            img: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=800&q=80",
+            items: [
+                {n: "Egg Thali (Reguler)", p: 120}, {n: "Egg Masala Thali", p: 140},
+                {n: "Egg Kolhapuri Thali", p: 140}, {n: "Egg Makhanwala Thali", p: 140},
+                {n: "Egg Sukka Thali", p: 140}, {n: "Chicken Thali (Reguler)", p: 170},
+                {n: "Chicken Masala Thali", p: 170}, {n: "Chicken Kolhapuri Thali", p: 170},
+                {n: "Chicken Makhanwala Thali", p: 170}, {n: "Chicken Sukka Thali", p: 170}
+            ]
+        },
+        "Veg Starters": {
+            img: "https://www.indianveggiedelight.com/wp-content/uploads/2017/06/gobi-manchurian-featured.jpg",
+            items: [
+                {n: "Masala Senga", p: 15}, {n: "Maharaja Senga", p: 35},
+                {n: "Rosted Papad", p: 20}, {n: "Oil Papad", p: 30},
+                {n: "Masala Papad", p: 40}, {n: "Finger Chipes", p: 100},
+                {n: "Onion Pakada", p: 100}, {n: "Gobi Manchuri", p: 100},
+                {n: "Kaju Fry", p: 100}
+            ]
+        },
+        "Veg Dish": {
+            img: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=800&q=80",
+            items: [
+                {n: "Dal Fry", p: 90}, {n: "Dal Kolhapuri", p: 110},
+                {n: "Dal Tabaka", p: 120}, {n: "Akka Masur", p: 90},
+                {n: "Akka Masur Kolhapuri", p: 100}, {n: "Mix Veg", p: 120},
+                {n: "Mix Veg Kolhapuri", p: 130}, {n: "Mix Veg Makhanwala", p: 130},
+                {n: "Mix Veg Hyderabadi", p: 130}, {n: "Kaju Curry", p: 170},
+                {n: "Kaju Kolhapuri", p: 170}, {n: "Kaju Makhanwala", p: 170},
+                {n: "Paneer Masala", p: 170}, {n: "Paneer Kolhapuri", p: 170},
+                {n: " Kaju Paneer Kolhapuri", p: 190},
+                {n: "Paneer Makhanwala", p: 170}, {n: "Paneer Tikka", p: 170},
+                {n: "Paneer Tikka Masala", p: 180}, {n: "Kaju Paneer Masala", p: 180},
+                {n: "Palak Paneer", p: 170}, {n: "Matter Paneer", p: 160},
+                {n: "Matter Masala", p: 110}, {n: "Green Pis Masala", p: 110},
+                {n: "Capsicum Masala", p: 100}, {n: "Channa Masala", p: 100}
+            ]
+        },
+        "Roti Items": {
+            img: "https://sultancottage.uk/wp-content/uploads/2020/11/Roti-1-1842x1212-1.jpg",
+            items: [
+                {n: "Tanduri Roti", p: 15}, {n: "Pepar Roti", p: 25},
+                {n: "Butter Roti", p: 25}, {n: "Butter Kulach", p: 35},
+                {n: "Butter Naan", p: 40}, {n: "Kerala Paroota (Ready)", p: 20},
+                {n: "Chapati", p: 15}, {n: "Sajji Rotti", p: 10},
+                {n: "Gonjal Rotti", p: 10}
+            ]
+        },
+        "Rice Items": {
+            img: "https://tse3.mm.bing.net/th/id/OIP.ug7mcOMWDCGNYWMVONgcgwHaE8?pid=Api&P=0&h=180",
+            items: [
+                {n: "Plane Rice-Half", p: 40}, {n: "Plane Rice-Full", p: 70},
+                {n: "Jeera Rice-Half", p: 50}, {n: "Jeera Rice-Full", p: 100},
+                {n: "Masala Rice-Half", p: 70}, {n: "Masala Rice-Full", p: 130},
+                {n: "Ghee Rice-Half", p: 70}, {n: "Ghee Rice-Full", p: 130},
+                {n: "Kushka Rice-Half", p: 70}, {n: "Kushka Rice-Full", p: 130},
+                {n: "Curd Rice Full Only", p: 120}, {n: "Egg Rice Full Only", p: 120},
+                {n: "Veg Fried Rice", p: 120}
+            ]
         }
+    };
 
-        function openAdmin() {
-            const panel = document.getElementById('admin-panel');
-            const listContainer = document.getElementById('admin-controls-list');
-            listContainer.innerHTML = "";
-            panel.style.display = 'block';
-            for(let cat in finalMenu) {
-                listContainer.innerHTML += `<h3 style="background:#eee; padding:8px;">${cat.replace('_',' ').toUpperCase()}</h3>`;
-                finalMenu[cat].forEach(item => {
-                    const isOff = unavailableItems[item.id] === true;
-                    listContainer.innerHTML += `<div class="admin-item-row"><span>${item.name}</span><button class="status-btn ${isOff ? 'btn-off' : 'btn-on'}" onclick="toggleVisibility('${item.id}', this)">${isOff ? 'OFF' : 'ON'}</button></div>`;
+    // --- UPDATED FUNCTIONS ---
+
+    window.openAdmin = function() {
+        if (prompt("Enter Secret Code:") === "20106669") {
+            const list = document.getElementById('admin-list');
+            list.innerHTML = "";
+            document.getElementById('admin-panel').style.display = 'block';
+            for(let cat in fullMenuData) {
+                list.innerHTML += `<h3 style="background:#f2f2f2; padding:10px; margin: 10px 0;">${cat}</h3>`;
+                fullMenuData[cat].items.forEach(item => {
+                    const isOff = disabledItems[item.n];
+                    list.innerHTML += `<div class="admin-row"><span>${item.n}</span><button class="status-btn ${isOff?'btn-off':'btn-on'}" onclick="toggleItem('${item.n}', this)">${isOff?'OFF':'ON'}</button></div>`;
                 });
             }
         }
+    }
 
-        function toggleVisibility(id, btn) {
-            if (unavailableItems[id]) { delete unavailableItems[id]; btn.innerText = "ON"; btn.className = "status-btn btn-on"; }
-            else { unavailableItems[id] = true; btn.innerText = "OFF"; btn.className = "status-btn btn-off"; }
-            localStorage.setItem('cakemart_unavailable', JSON.stringify(unavailableItems));
-            renderAll();
+    window.toggleItem = function(name, btn) {
+        if(disabledItems[name]) { delete disabledItems[name]; btn.innerText="ON"; btn.className="status-btn btn-on"; }
+        else { disabledItems[name]=true; btn.innerText="OFF"; btn.className="status-btn btn-off"; }
+        localStorage.setItem('hukkeri_stock', JSON.stringify(disabledItems));
+    }
+
+    window.openMenu = function() {
+        document.getElementById('hero-section').classList.add('hide');
+        setTimeout(() => {
+            document.getElementById('hero-section').style.display = 'none';
+            document.getElementById('menu-wrapper').style.display = 'block';
+            renderTabs();
+            const categories = Object.keys(fullMenuData);
+            if (categories.length > 0) setCategory(categories[0]);
+        }, 700);
+    }
+
+    function renderTabs() {
+        const nav = document.getElementById('category-nav');
+        nav.innerHTML = '';
+        Object.keys(fullMenuData).forEach(cat => {
+            const t = document.createElement('button');
+            t.className = 'tab';
+            t.id = `tab-${cat.replace(/\s/g, '')}`;
+            t.innerText = cat;
+            t.onclick = () => setCategory(cat);
+            nav.appendChild(t);
+        });
+    }
+
+    window.setCategory = function(cat) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        const tabElement = document.getElementById(`tab-${cat.replace(/\s/g, '')}`);
+        if(tabElement) tabElement.classList.add('active');
+        document.getElementById('dynamic-title').innerText = cat;
+        document.getElementById('dynamic-cat-img').src = fullMenuData[cat].img;
+        const list = document.getElementById('items-list');
+        list.innerHTML = '';
+        fullMenuData[cat].items.forEach(item => {
+            if(disabledItems[item.n]) return;
+            const qty = cart[item.n] ? cart[item.n].q : 0;
+            const row = document.createElement('div');
+            row.className = 'menu-row';
+            row.innerHTML = `<div class="item-text"><b>${item.n}</b><span>₹${item.p}</span></div><div class="qty-box"><button class="qty-btn" onclick="update(this, '${item.n}',${item.p},-1)">−</button><span class="qty-count" style="font-weight:900;">${qty}</span><button class="qty-btn" onclick="update(this, '${item.n}',${item.p},1)">+</button></div>`;
+            list.appendChild(row);
+        });
+    }
+
+    window.update = function(btnElement, name, price, delta) {
+        if(!cart[name]) cart[name] = {q: 0, p: price};
+        cart[name].q += delta;
+        if(cart[name].q <= 0) { cart[name].q = 0; delete cart[name]; }
+        const qtySpan = btnElement.parentElement.querySelector('.qty-count');
+        qtySpan.innerText = cart[name] ? cart[name].q : 0;
+        
+        let subtotal = 0; 
+        let active = 0;
+        for(let key in cart) { if(cart[key].q > 0) { active++; subtotal += (cart[key].q * cart[key].p); } }
+        
+        let deliveryCharge = 0;
+        const deliveryLabel = document.getElementById('delivery-label');
+        if(subtotal > 0) {
+            if(subtotal <= 100) { deliveryCharge = 15; deliveryLabel.innerText = "Delivery Charge (Flat Fee)"; } 
+            else { deliveryCharge = Math.round(subtotal * 0.15); deliveryLabel.innerText = "Delivery Charge (15%)"; }
         }
+        document.getElementById('display-subtotal').innerText = "₹" + subtotal;
+        document.getElementById('display-delivery').innerText = "₹" + deliveryCharge;
+        document.getElementById('final-total').innerText = subtotal + deliveryCharge;
+        document.getElementById('cart-footer').classList.toggle('active', active > 0);
+    }
 
-        function closeAdmin() { document.getElementById('admin-panel').style.display = 'none'; }
-        function openMenu() { document.getElementById('landing-page').style.display = 'none'; document.getElementById('menu-container').style.display = 'block'; renderAll(); }
-
-        function renderAll() {
-            renderList('list-fried-chicken', finalMenu.fried_chicken);
-            renderList('list-chicken-pizzas', finalMenu.chicken_pizzas);
-            renderList('list-veg-pizzas', finalMenu.veg_pizzas);
-            renderList('list-burgers', finalMenu.burgers);
-            renderList('list-sandwiches', finalMenu.sandwiches);
-            renderList('list-chats', finalMenu.chats);
-            renderList('list-beverages', finalMenu.beverages);
-            renderList('list-desserts', finalMenu.desserts);
+    window.getLocation = function() {
+        const name = document.getElementById('c-name').value;
+        const phone = document.getElementById('c-phone').value;
+        if(!name || phone.length < 10) return alert("Please enter name and mobile number first!");
+        const locBtn = document.getElementById('loc-btn');
+        locBtn.innerText = "Accessing GPS...";
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((position) => {
+                userLocationURL = "https://www.google.com/maps?q=" + position.coords.latitude + "," + position.coords.longitude;
+                locBtn.style.display = "none";
+                document.getElementById('confirm-btn').style.display = "block";
+            }, (error) => { alert("Location access needed!"); locBtn.innerText = "📍 Share Location to Order"; });
         }
+    }
 
-        function renderList(id, list) {
-            const container = document.getElementById(id);
-            container.innerHTML = '';
-            list.forEach(item => {
-                if (unavailableItems[item.id]) return;
-                container.innerHTML += `
-                    <div class="menu-card" data-name="${item.name}" data-price="${item.p}">
-                        <div><span class="item-name">${item.name}</span></div>
-                        <div style="text-align:right">
-                            <span class="price-text">₹${item.p}</span>
-                            <div class="qty-box">
-                                <button class="btn-circle" onclick="q(this,-1)">-</button>
-                                <span class="qty-val">0</span>
-                                <button class="btn-circle" onclick="q(this,1)">+</button>
-                            </div>
-                        </div>
-                    </div>`;
+    // --- THE MASTER ORDER FUNCTION (DUAL SYNC) ---
+    window.confirmOrder = async function() {
+        const name = document.getElementById('c-name').value;
+        const phone = document.getElementById('c-phone').value;
+        const total = document.getElementById('final-total').innerText;
+        const hotelName = document.querySelector('.hero-title').innerText;
+        
+        let itemSummary = "";
+        for(let k in cart) { if(cart[k].q > 0) { itemSummary += k + " (x" + cart[k].q + "), "; } }
+
+        const btn = document.getElementById('confirm-btn');
+        btn.innerText = "Confirming...";
+        btn.disabled = true;
+
+        // 1. Prepare Google Sheets Data
+        const params = new URLSearchParams();
+        params.append('hotel', hotelName);
+        params.append('name', name);
+        params.append('phone', phone);
+        params.append('items', itemSummary);
+        params.append('total', total);
+        params.append('location', userLocationURL);
+
+        try {
+            // 2. Fire both requests together
+            const googleTask = fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: params });
+            
+            const firebaseTask = addDoc(collection(db, "orders"), {
+                hotel: hotelName,
+                customerName: name,
+                phone: phone,
+                items: itemSummary,
+                total: total,
+                location: userLocationURL,
+                status: "pending",
+                timestamp: serverTimestamp()
             });
-        }
 
-        function q(btn, change) {
-            const card = btn.closest('.menu-card');
-            const span = card.querySelector('.qty-val');
-            let val = parseInt(span.innerText) + change;
-            if (val < 0) val = 0;
-            span.innerText = val;
-            updateCartData(card.getAttribute('data-name'), parseInt(card.getAttribute('data-price')), val);
-        }
-
-        function updateCartData(name, price, qty) {
-            if (qty > 0) cart[name] = { qty, price, total: qty * price, isPizza: name.toLowerCase().includes('pizza') };
-            else delete cart[name];
-            renderCart();
-        }
-
-        // --- UPDATED PRICING LOGIC ---
-        function renderCart() {
-            const box = document.getElementById('cart-box');
-            const list = document.getElementById('cart-items-list');
-            const deliveryLabel = document.getElementById('delivery-label');
-            const deliveryValDisplay = document.getElementById('delivery-charge-total');
+            await Promise.all([googleTask, firebaseTask]);
             
-            let html = ''; let subTotal = 0; let totalItems = 0; let packTotal = 0;
-            
-            for (let k in cart) {
-                html += `<div class="cart-row"><span>${k} x ${cart[k].qty}</span><span>₹${cart[k].total}</span></div>`;
-                subTotal += cart[k].total; totalItems += cart[k].qty;
-                packTotal += cart[k].isPizza ? (cart[k].qty * 10) : (cart[k].qty * 10);
-            }
-
-            // DELIVERY LOGIC: Below 100 is 15, Else 15%
-            let deliveryCharge = 0;
-            if(subTotal > 0) {
-                if(subTotal <= 100) {
-                    deliveryCharge = 15;
-                    deliveryLabel.innerText = "Service & Delivery (Flat)";
-                } else {
-                    deliveryCharge = Math.round(subTotal * 0.15);
-                    deliveryLabel.innerText = "Service & Delivery (15%)";
-                }
-            }
-
-            const grandTotal = totalItems > 0 ? (subTotal + packTotal + deliveryCharge) : 0;
-            
-            list.innerHTML = html;
-            document.getElementById('pack-total').innerText = "₹" + packTotal;
-            deliveryValDisplay.innerText = "₹" + deliveryCharge;
-            document.getElementById('cart-total-price').innerText = grandTotal;
-            document.getElementById('cart-total-qty').innerText = totalItems + " Items";
-            box.style.display = totalItems > 0 ? 'flex' : 'none';
+            alert("Order Success! Sent to Google Sheets & Master Control.");
+            location.reload(); 
+        } catch (error) {
+            alert("Error sending order. Please check your connection.");
+            btn.disabled = false;
+            btn.innerText = "Confirm Order";
         }
-
-        function getLocation() {
-            const btn = document.getElementById('loc-btn');
-            btn.innerText = "🛰️ Connecting to Satellite...";
-            navigator.geolocation.getCurrentPosition((pos) => {
-                userLocation = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
-                btn.style.background = "#27ae60"; btn.innerText = "✅ Location Locked";
-                document.getElementById('main-order-btn').style.display = 'block';
-            }, () => { alert("Please allow location access for delivery."); btn.innerText = "📍 Retry Location Share"; });
-        }
-
-        async function placeOrderDual() {
-            const name = document.getElementById('cust-name').value;
-            const phone = document.getElementById('cust-phone').value;
-            const finalPrice = document.getElementById('cart-total-price').innerText;
-            const btn = document.getElementById('main-order-btn');
-
-            if(!name || phone.length < 10) return alert("Please provide valid Name & Phone.");
-            
-            btn.innerText = "Processing...";
-            btn.disabled = true;
-
-            let itemsSummary = ""; 
-            for (let k in cart) { itemsSummary += `${k}(${cart[k].qty}), `; }
-
-            try {
-                if(window.db) {
-                    await window.addDoc(window.collection(window.db, "orders"), {
-                        hotel: "Cake Mart",
-                        customerName: name,
-                        phone: phone,
-                        items: itemsSummary,
-                        total: finalPrice,
-                        location: userLocation,
-                        status: "pending",
-                        timestamp: window.serverTimestamp()
-                    });
-                }
-            } catch (e) { console.error("Firebase fail:", e); }
-
-            const fullDetails = `NAME: ${name} | TEL: ${phone} | LOC: ${userLocation} | ORDER: ${itemsSummary}`;
-            const formData = new URLSearchParams();
-            formData.append(ENTRY_HOTEL, "Cake Mart");
-            formData.append(ENTRY_DETAILS, fullDetails);
-            formData.append(ENTRY_TOTAL, "₹" + finalPrice);
-
-            fetch(FORM_URL, { method: 'POST', mode: 'no-cors', body: formData })
-            .then(() => { 
-                document.getElementById('success-overlay').style.display = 'flex'; 
-            })
-            .catch(() => {
-                alert("Order recorded in system, but network is slow. We will call you!");
-                document.getElementById('success-overlay').style.display = 'flex';
-            });
-        }
-    </script>
+    }
+</script>
 </body>
 </html>
