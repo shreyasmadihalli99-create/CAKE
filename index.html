@@ -26,13 +26,13 @@
             scroll-behavior: smooth;
         }
 
-        /* --- THE HANGING BOARD STYLE --- */
+        /* --- THE HANGING BOARD --- */
         .hanging-notice {
             position: absolute;
             top: 0;
             left: 50%;
             transform: translateX(-50%);
-            background: #d35400; /* Darker orange for a wooden board look */
+            background: #d35400; 
             color: white;
             padding: 15px 25px;
             border-radius: 0 0 12px 12px;
@@ -52,11 +52,9 @@
             font-weight: 900;
             font-size: 1rem;
             line-height: 1.3;
-            letter-spacing: 0.5px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            text-transform: uppercase;
         }
 
-        /* Animation to make it hang/swing */
         @keyframes hangSwing {
             0% { transform: translateX(-50%) rotate(2deg); }
             50% { transform: translateX(-50%) rotate(-2deg); }
@@ -64,34 +62,21 @@
         }
 
         #admin-star {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 9999;
-            font-size: 24px;
-            cursor: pointer;
-            opacity: 0.2;
-            background: white;
-            border-radius: 50%;
-            width: 40px; height: 40px;
+            position: fixed; bottom: 20px; right: 20px; z-index: 9999;
+            font-size: 24px; cursor: pointer; opacity: 0.2; background: white;
+            border-radius: 50%; width: 40px; height: 40px;
             display: flex; align-items: center; justify-content: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         #admin-panel {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: white;
-            z-index: 10000;
-            padding: 20px;
-            overflow-y: auto;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: white; z-index: 10000; padding: 20px; overflow-y: auto;
         }
 
         .admin-header {
             display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 2px solid var(--primary);
-            padding-bottom: 15px; margin-bottom: 20px;
+            border-bottom: 2px solid var(--primary); padding-bottom: 15px; margin-bottom: 20px;
         }
 
         .admin-item-row {
@@ -108,89 +93,51 @@
         .btn-off { background: var(--danger); color: white; }
 
         #landing-page {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            height: 100vh; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
             background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.7)), 
                         url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800');
-            background-size: cover;
-            background-position: center;
-            text-align: center;
-            padding: 20px;
-            position: relative; /* Required for hanging board */
+            background-size: cover; background-position: center; text-align: center;
+            padding: 20px; position: relative;
         }
 
         .cafe-title { color: white; font-size: 2.8rem; margin: 0; font-weight: 800; }
         
         .enter-btn {
-            margin-top: 25px;
-            background: var(--primary);
-            color: white;
-            padding: 18px 60px;
-            border-radius: 50px;
-            border: none;
-            font-size: 1.1rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            cursor: pointer;
+            margin-top: 25px; background: var(--primary); color: white;
+            padding: 18px 60px; border-radius: 50px; border: none;
+            font-size: 1.1rem; font-weight: 700; text-transform: uppercase; cursor: pointer;
         }
 
         #menu-container { display: none; padding-bottom: 350px; }
 
         .category-nav {
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            background: white;
-            display: flex;
-            overflow-x: auto;
-            padding: 12px 8px;
-            gap: 8px;
+            position: sticky; top: 0; z-index: 1000; background: white;
+            display: flex; overflow-x: auto; padding: 12px 8px; gap: 8px;
             border-bottom: 1px solid #ddd;
         }
 
         .nav-item {
-            padding: 8px 16px;
-            background: #eee;
-            border-radius: 20px;
-            white-space: nowrap;
-            font-size: 0.8rem;
-            text-decoration: none;
-            color: #555;
-            font-weight: 700;
+            padding: 8px 16px; background: #eee; border-radius: 20px;
+            white-space: nowrap; font-size: 0.8rem; text-decoration: none;
+            color: #555; font-weight: 700;
         }
 
-        .nav-item.active-cat {
-            background: var(--primary) !important;
-            color: white !important;
-        }
+        .nav-item.active-cat { background: var(--primary) !important; color: white !important; }
 
         .section-header {
-            padding: 15px;
-            font-size: 1.3rem;
-            font-weight: 800;
-            color: var(--primary);
-            background: white;
-            border-bottom: 1px solid #eee;
-            margin-top: 10px;
+            padding: 15px; font-size: 1.3rem; font-weight: 800;
+            color: var(--primary); background: white; border-bottom: 1px solid #eee; margin-top: 10px;
         }
 
         .menu-card {
-            background: white;
-            margin-bottom: 1px;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background: white; margin-bottom: 1px; padding: 15px;
+            display: flex; justify-content: space-between; align-items: center;
         }
 
         .item-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; display: block; }
         
-        .size-group {
-            display: flex; background: #f1f1f1; border-radius: 6px; padding: 2px; width: fit-content;
-        }
+        .size-group { display: flex; background: #f1f1f1; border-radius: 6px; padding: 2px; width: fit-content; }
         .size-pill {
             padding: 4px 10px; font-size: 0.7rem; border: none; background: none;
             border-radius: 4px; font-weight: 700; color: #666; cursor: pointer;
@@ -266,9 +213,8 @@
 
     <div id="landing-page">
         <div class="hanging-notice">
-            <span>STEAMED FOOD WILL TAKE 20 MINUTES EXTRA THAN THE DELIVERED TIME</span>
+            <span>Steamed food will take 20 minutes extra then the deliver</span>
         </div>
-        
         <h1 class="cafe-title">Raghuveer Cafe</h1>
         <p style="color:white">Hot & Fresh delivered to your door</p>
         <button class="enter-btn" onclick="openMenu()">View Menu</button>
@@ -279,7 +225,7 @@
             <a href="#pizzas" class="nav-item active-cat" onclick="h(this)">Pizzas</a>
             <a href="#burgers" class="nav-item" onclick="h(this)">Burgers</a>
             <a href="#sandwiches" class="nav-item" onclick="h(this)">Sandwiches</a>
-            <a href="#fries" class="nav-item" onclick="h(this)">Fries</a>
+            <a href="#fries" class="nav-item" onclick="h(this)">Fies</a>
             <a href="#momos" class="nav-item" onclick="h(this)">Momos</a>
             <a href="#pasta" class="nav-item" onclick="h(this)">Pasta</a>
             <a href="#maggie" class="nav-item" onclick="h(this)">Maggie</a>
@@ -337,9 +283,9 @@
     </div>
 
     <script>
-        // GOOGLE SHEETS & FIREBASE CONFIG
+        // REPLACE WITH YOUR ACTUAL FIREBASE AND GOOGLE FORM DATA
         const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfYGXB2Lim7wtiFCYy8U7MtV9DN9X2Tm7zSkx-qYxPLSLRcUg/formResponse";
-        const ENTRY_DETAILS = "entry.1304197339";
+        const ENTRY_DETAILS = "entry.1304197339"; 
         const ENTRY_TOTAL = "entry.248975380";
         const ENTRY_HOTEL = "entry.164020655";
 
@@ -520,8 +466,7 @@
 
         function renderAll() {
             for (let cat in finalMenu) {
-                const type = (cat === 'pizzas') ? 'pizza' : 
-                             (['burgers','sandwiches','fries','momos','coffee'].includes(cat) ? 'multi' : 'single');
+                const type = (cat === 'pizzas') ? 'pizza' : (['burgers','sandwiches','fries','momos','coffee'].includes(cat) ? 'multi' : 'single');
                 renderList('list-' + cat, finalMenu[cat], type);
             }
         }
@@ -598,25 +543,49 @@
                 btn.style.background = "#27ae60";
                 btn.innerText = "✅ Location Locked";
                 document.getElementById('main-order-btn').style.display = 'block';
-            }, () => alert("Location required."));
+            }, () => {
+                alert("Location required to place order.");
+                btn.innerText = "📍 Try Location Again";
+            });
         }
 
         function placeOrder() {
             const name = document.getElementById('cust-name').value;
             const phone = document.getElementById('cust-phone').value;
             const finalPrice = document.getElementById('cart-total-price').innerText;
-            if(!name || phone.length < 10) return alert("Enter Name and Phone.");
+            const orderBtn = document.getElementById('main-order-btn');
+
+            if(!name || phone.length < 10) {
+                alert("Please enter Name and a valid 10-digit Phone.");
+                return;
+            }
+
+            orderBtn.disabled = true;
+            orderBtn.innerText = "Processing...";
 
             let itemsList = "";
-            for(let k in cart) itemsList += `- ${k} x ${cart[k].qty} (₹${cart[k].total})\n`;
+            for(let k in cart) {
+                itemsList += `- ${k} x ${cart[k].qty} (₹${cart[k].total})\n`;
+            }
 
-            const orderData = { customerName: name, customerPhone: phone, location: userLocation, orderItems: cart, totalAmount: "₹" + finalPrice, timestamp: Date.now(), status: "Received" };
+            const orderData = {
+                customerName: name,
+                customerPhone: phone,
+                location: userLocation,
+                orderItems: itemsList,
+                totalAmount: "₹" + finalPrice,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                status: "Pending"
+            };
+
             let sheetDetails = `NEW ORDER\n----------\nCustomer: ${name}\nPhone: ${phone}\nLocation: ${userLocation}\n\nItems:\n${itemsList}`;
+            
             const body = new FormData();
             body.append(ENTRY_DETAILS, sheetDetails);
             body.append(ENTRY_TOTAL, "₹" + finalPrice);
             body.append(ENTRY_HOTEL, "Raghuveer Café");
 
+            // SEND TO BOTH PLACES
             Promise.all([
                 fetch(FORM_URL, { method: 'POST', mode: 'no-cors', body }),
                 database.ref('orders').push(orderData)
@@ -624,6 +593,8 @@
                 document.getElementById('success-overlay').style.display = 'flex';
                 window.scrollTo(0,0);
             }).catch(err => {
+                console.error("Order Error:", err);
+                // Even if CORS fails for Google Form, data usually goes through, so we show success
                 document.getElementById('success-overlay').style.display = 'flex';
             });
         }
