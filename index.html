@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Raghuveer Café | Official Menu</title>
+    <title>Raghuveer Café | Digital Menu</title>
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBc7nQQ558jsA8oagdSuiXqH9IVBBBp-EQ",
             authDomain: "rapidroute-1d14d.firebaseapp.com",
@@ -19,425 +18,123 @@
             appId: "1:785713080550:web:ad14ddcc23630b01ffb327"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Define the global placeOrder function
         window.placeOrder = async function() {
             const name = document.getElementById('cust-name').value;
             const phone = document.getElementById('cust-phone').value;
             const finalPrice = document.getElementById('cart-total-price').innerText;
             
             if(!name || phone.length < 10) return alert("Please enter Name and 10-digit Phone.");
+            if(!userLocation) return alert("Please tap 'Share Live Location' first!");
 
-            let itemsList = "";
-            let itemsSummary = ""; // For Firebase field
+            let itemsList = ""; let itemsSummary = ""; 
             for(let k in cart) {
                 itemsList += `- ${k} x ${cart[k].qty} (₹${cart[k].total})\n`;
                 itemsSummary += `${k} x ${cart[k].qty}, `;
             }
 
-            // Data for Firebase (Matches your Master Control Sheet structure)
             const orderData = { 
-                customerName: name, 
-                phone: phone, 
-                location: userLocation, 
-                items: itemsSummary.replace(/,\s*$/, ""), // Clean string
-                total: finalPrice, 
-                timestamp: serverTimestamp(), 
-                status: "pending",
-                hotel: "Raghuveer Café"
+                customerName: name, phone: phone, location: userLocation, 
+                items: itemsSummary.replace(/,\s*$/, ""), total: "₹" + finalPrice, 
+                timestamp: serverTimestamp(), status: "pending", hotel: "Raghuveer Café"
             };
 
-            // Data for Google Sheets
-            let sheetDetails = `NEW ORDER\n----------\nCustomer: ${name}\nPhone: ${phone}\nLocation: ${userLocation}\n\nItems:\n${itemsList}`;
             const body = new FormData();
-            body.append(ENTRY_DETAILS, sheetDetails);
-            body.append(ENTRY_TOTAL, "₹" + finalPrice);
-            body.append(ENTRY_HOTEL, "Raghuveer Café");
+            body.append("entry.1304197339", `ORDER\nCustomer: ${name}\nPhone: ${phone}\nLoc: ${userLocation}\n\nItems:\n${itemsList}`);
+            body.append("entry.248975380", "₹" + finalPrice);
+            body.append("entry.164020655", "Raghuveer Café");
 
             try {
-                // SEND TO BOTH SIMULTANEOUSLY
                 await Promise.all([
-                    fetch(FORM_URL, { method: 'POST', mode: 'no-cors', body }),
+                    fetch("https://docs.google.com/forms/d/e/1FAIpQLSfYGXB2Lim7wtiFCYy8U7MtV9DN9X2Tm7zSkx-qYxPLSLRcUg/formResponse", { method: 'POST', mode: 'no-cors', body }),
                     addDoc(collection(db, "orders"), orderData)
                 ]);
-
                 document.getElementById('success-overlay').style.display = 'flex';
                 window.scrollTo(0,0);
-            } catch (err) {
-                console.error("Order error:", err);
-                alert("Order failed. Please check connection.");
-            }
+            } catch (err) { alert("Order failed. Check connection."); }
         };
     </script>
 
     <style>
-        :root {
-            --primary: #e67e22;
-            --dark: #2d3436;
-            --light: #f8f9fa;
-            --danger: #e74c3c;
-            --success: #27ae60;
-        }
-
+        :root { --primary: #e67e22; --dark: #2d3436; --light: #f8f9fa; --success: #27ae60; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, sans-serif; margin: 0; background: var(--light); color: var(--dark); scroll-behavior: smooth; }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            margin: 0;
-            background-color: var(--light);
-            color: var(--dark);
-            scroll-behavior: smooth;
-        }
-
-        #admin-star {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 9999;
-            font-size: 24px;
-            cursor: pointer;
-            opacity: 0.2;
-            background: white;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        #admin-panel {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: white;
-            z-index: 10000;
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid var(--primary);
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
-
-        .admin-item-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .status-btn {
-            padding: 8px 15px;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-            font-size: 12px;
-            cursor: pointer;
-            min-width: 70px;
-        }
-
-        .btn-on { background: var(--success); color: white; }
-        .btn-off { background: var(--danger); color: white; }
-
-        #landing-page {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.7)), 
-                        url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800');
-            background-size: cover;
-            background-position: center;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .cafe-title { color: white; font-size: 2.8rem; margin: 0; font-weight: 800; }
-        
-        .enter-btn {
-            margin-top: 25px;
-            background: var(--primary);
-            color: white;
-            padding: 18px 60px;
-            border-radius: 50px;
-            border: none;
-            font-size: 1.1rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            cursor: pointer;
-        }
-
-        #menu-container { display: none; padding-bottom: 350px; }
-
+        /* SCROLLABLE TABS */
         .category-nav {
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            background: white;
-            display: flex;
-            overflow-x: auto;
-            padding: 12px 8px;
-            gap: 8px;
-            border-bottom: 1px solid #ddd;
+            position: sticky; top: 0; z-index: 1000; background: white;
+            display: flex; overflow-x: auto; padding: 12px 8px; gap: 8px;
+            border-bottom: 1px solid #ddd; scrollbar-width: none;
         }
-
+        .category-nav::-webkit-scrollbar { display: none; }
         .nav-item {
-            padding: 8px 16px;
-            background: #eee;
-            border-radius: 20px;
-            white-space: nowrap;
-            font-size: 0.8rem;
-            text-decoration: none;
-            color: #555;
-            font-weight: 700;
+            padding: 8px 16px; background: #eee; border-radius: 20px;
+            white-space: nowrap; font-size: 0.8rem; text-decoration: none;
+            color: #555; font-weight: 700; flex-shrink: 0; text-transform: capitalize;
         }
+        .nav-item.active-cat { background: var(--primary) !important; color: white !important; }
 
-        .nav-item.active-cat {
-            background: var(--primary) !important;
-            color: white !important;
-        }
-
-        .section-header {
-            padding: 15px;
-            font-size: 1.3rem;
-            font-weight: 800;
-            color: var(--primary);
-            background: white;
-            border-bottom: 1px solid #eee;
-            margin-top: 10px;
-        }
-
-        .menu-card {
-            background: white;
-            margin-bottom: 1px;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .item-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; display: block; }
+        .section-header { padding: 15px; font-size: 1.2rem; font-weight: 800; color: var(--primary); background: #fff; margin-top: 10px; border-bottom: 1px solid #eee; text-transform: uppercase; }
+        .menu-card { background: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; }
+        .item-name { font-weight: 700; font-size: 0.95rem; display: block; margin-bottom: 5px; }
         
-        .size-group {
-            display: flex;
-            background: #f1f1f1;
-            border-radius: 6px;
-            padding: 2px;
-            width: fit-content;
-        }
-        .size-pill {
-            padding: 4px 10px;
-            font-size: 0.7rem;
-            border: none;
-            background: none;
-            border-radius: 4px;
-            font-weight: 700;
-            color: #666;
-            cursor: pointer;
-        }
+        .size-group { display: flex; background: #f1f1f1; border-radius: 6px; padding: 2px; width: fit-content; }
+        .size-pill { padding: 4px 10px; font-size: 0.7rem; border: none; background: none; border-radius: 4px; font-weight: 700; color: #666; cursor: pointer; }
         .size-pill.active { background: white; color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
-        .price-text { font-weight: 800; font-size: 1.1rem; color: #000; display: block; }
-        
-        .qty-box {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 12px;
-            margin-top: 5px;
-        }
-        
-        .btn-circle {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            border: 1.5px solid var(--primary);
-            background: white;
-            color: var(--primary);
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
+        .qty-box { display: flex; align-items: center; gap: 12px; margin-top: 8px; justify-content: flex-end; }
+        .btn-circle { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--primary); background: white; color: var(--primary); font-weight: bold; cursor: pointer; }
 
         #cart-box {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: white;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.15);
-            z-index: 2000;
-            display: none;
-            flex-direction: column;
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-            padding: 15px;
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: white; box-shadow: 0 -5px 20px rgba(0,0,0,0.15);
+            z-index: 2000; display: none; flex-direction: column;
+            padding: 15px; border-radius: 20px 20px 0 0; max-height: 80vh; overflow-y: auto;
         }
-
-        .details-input {
-            width: 100%; padding: 10px; margin-bottom: 8px;
-            border: 1px solid #ddd; border-radius: 8px; font-size: 0.9rem;
-        }
-
-        .loc-btn {
-            background: #3498db; color: white; border: none; padding: 12px;
-            border-radius: 8px; font-weight: 700; margin-bottom: 10px; width: 100%;
-            cursor: pointer;
-        }
-
-        #cart-items-list {
-            flex-grow: 1;
-            overflow-y: auto;
-            font-size: 0.85rem;
-            margin-bottom: 10px;
-            border-bottom: 1px solid #eee;
-            max-height: 150px;
-        }
-
-        .cart-row { display: flex; justify-content: space-between; padding: 4px 0; }
-        .fee-row { display: flex; justify-content: space-between; padding: 2px 0; font-size: 0.75rem; color: #777; }
-
-        .order-btn {
-            background: #27ae60;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            font-weight: 800;
-            font-size: 1rem;
-            display: none;
-            cursor: pointer;
-        }
-
-        #success-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: white;
-            z-index: 5000;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
-        }
+        .details-input { width: 100%; padding: 12px; margin-bottom: 8px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
+        .loc-btn { background: #3498db; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: 700; margin-bottom: 10px; }
+        .order-btn { background: var(--success); color: white; border: none; padding: 15px; border-radius: 10px; width: 100%; font-size: 1.1rem; font-weight: 800; }
+        
+        #success-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 5000; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .enter-btn { background: var(--primary); color: white; padding: 18px 60px; border-radius: 50px; border: none; font-size: 1.1rem; font-weight: 700; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div id="admin-star" onclick="checkAdmin()">★</div>
-
-    <div id="admin-panel">
-        <div class="admin-header">
-            <h2 style="margin:0; color:var(--primary)">Inventory Control</h2>
-            <button onclick="closeAdmin()" style="padding:10px; border-radius:8px; border:none; background:#333; color:white;">CLOSE</button>
-        </div>
-        <div id="admin-controls-list"></div>
-    </div>
-
     <div id="success-overlay">
-        <h2 style="color: #27ae60;">✔ Order Received!</h2>
-        <p>Your meal is being prepared. Thank you!</p>
-        <button class="enter-btn" onclick="location.reload()">New Order</button>
+        <h2 style="color: var(--success);">Order Placed!</h2>
+        <p>Thank you for choosing Raghuveer Café.</p>
+        <button class="enter-btn" onclick="location.reload()">Back to Menu</button>
     </div>
 
-    <div id="landing-page">
-        <h1 class="cafe-title">Raghuveer Cafe</h1>
-        <p style="color:white">Hot & Fresh delivered to your door</p>
-        <button class="enter-btn" onclick="openMenu()">View Menu</button>
+    <div id="landing-page" style="height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800'); background-size: cover; background-position: center; color: white; text-align: center; padding: 20px;">
+        <h1 style="font-size: 2.5rem; margin: 0;">Raghuveer Cafe</h1>
+        <p style="font-size: 1.1rem; opacity: 0.9;">Premium Taste, Fast Delivery</p>
+        <button class="enter-btn" onclick="openMenu()">ORDER NOW</button>
     </div>
 
-    <div id="menu-container">
-        <div class="category-nav">
-            <a href="#pizzas" class="nav-item active-cat" onclick="h(this)">Pizzas</a>
-            <a href="#burgers" class="nav-item" onclick="h(this)">Burgers</a>
-            <a href="#sandwiches" class="nav-item" onclick="h(this)">Sandwiches</a>
-            <a href="#fries" class="nav-item" onclick="h(this)">Fries</a>
-            <a href="#momos" class="nav-item" onclick="h(this)">Momos</a>
-            <a href="#pasta" class="nav-item" onclick="h(this)">Pasta</a>
-            <a href="#maggie" class="nav-item" onclick="h(this)">Maggie</a>
-            <a href="#nuggets" class="nav-item" onclick="h(this)">Nuggets</a>
-            <a href="#frankie" class="nav-item" onclick="h(this)">Frankie</a>
-            <a href="#coffee" class="nav-item" onclick="h(this)">Coffee</a>
-            <a href="#milkshakes" class="nav-item" onclick="h(this)">Milkshakes</a>
-            <a href="#mastani" class="nav-item" onclick="h(this)">Mastani</a>
-            <a href="#hotcoffee" class="nav-item" onclick="h(this)">Hot Coffee</a>
-            <a href="#cadb" class="nav-item" onclick="h(this)">Cad-B</a>
-            <a href="#mocktails" class="nav-item" onclick="h(this)">Mocktails</a>
-            <a href="#combos" class="nav-item" onclick="h(this)">Combos</a>
-        </div>
-
-        <section id="pizzas"><div class="section-header">Pizza Selection</div><div id="list-pizzas"></div></section>
-        <section id="burgers"><div class="section-header">Burger Varieties</div><div id="list-burgers"></div></section>
-        <section id="sandwiches"><div class="section-header">Grill Sandwiches</div><div id="list-sandwiches"></div></section>
-        <section id="fries"><div class="section-header">French Fries</div><div id="list-fries"></div></section>
-        <section id="momos"><div class="section-header">Momos</div><div id="list-momos"></div></section>
-        <section id="pasta"><div class="section-header">Pasta</div><div id="list-pasta"></div></section>
-        <section id="maggie"><div class="section-header">Maggie</div><div id="list-maggie"></div></section>
-        <section id="nuggets"><div class="section-header">Nuggets</div><div id="list-nuggets"></div></section>
-        <section id="frankie"><div class="section-header">Frankie</div><div id="list-frankie"></div></section>
-        <section id="coffee"><div class="section-header">Cold Coffee</div><div id="list-coffee"></div></section>
-        <section id="milkshakes"><div class="section-header">Milkshakes</div><div id="list-milkshakes"></div></section>
-        <section id="mastani"><div class="section-header">Mastani</div><div id="list-mastani"></div></section>
-        <section id="hotcoffee"><div class="section-header">Hot Coffee</div><div id="list-hotcoffee"></div></section>
-        <section id="cadb"><div class="section-header">Cad-B</div><div id="list-cadb"></div></section>
-        <section id="mocktails"><div class="section-header">Mocktails</div><div id="list-mocktails"></div></section>
-        <section id="combos"><div class="section-header">Value Combos</div><div id="list-combos"></div></section>
-
-        <footer style="padding: 40px 20px; text-align: center; color: #888; font-size: 0.8rem;">
-            <p><strong>Raghuveer Cafe</strong></p>
-            <p>Packing: ₹10 per item<br>Delivery: ≤₹100 (₹15) | >₹100 (15%)</p>
-        </footer>
+    <div id="menu-container" style="display:none; padding-bottom: 250px;">
+        <div class="category-nav" id="tab-bar"></div>
+        <div id="full-menu-list"></div>
     </div>
 
     <div id="cart-box">
-        <div style="font-weight: 800; margin-bottom: 8px; color: var(--primary);">Delivery Information</div>
-        <input type="text" id="cust-name" class="details-input" placeholder="Enter Full Name">
-        <input type="tel" id="cust-phone" class="details-input" placeholder="10-Digit Mobile" maxlength="10">
+        <div style="font-weight: 800; color: var(--primary); margin-bottom: 10px;">Customer Information</div>
+        <input type="text" id="cust-name" class="details-input" placeholder="Your Name">
+        <input type="tel" id="cust-phone" class="details-input" placeholder="Phone Number">
         <button id="loc-btn" class="loc-btn" onclick="getLocation()">📍 Share Live Location</button>
-        <div id="cart-items-list"></div>
-        <div id="fees-container" style="border-top: 1px dashed #ccc; padding-top: 5px; margin-bottom: 10px;">
-            <div class="fee-row"><span>Packing Charge (₹10/item)</span><span id="pack-total">₹0</span></div>
-            <div class="fee-row"><span id="delivery-label">Delivery Fee</span><span id="delivery-total">₹0</span></div>
+        <div id="cart-items-list" style="border-top: 1px dashed #ccc; padding-top: 10px; font-size: 0.85rem; max-height: 150px; overflow-y: auto;"></div>
+        <div style="margin: 15px 0; font-size: 1.3rem; font-weight: 800; display: flex; justify-content: space-between;">
+            <span>Total:</span><span>₹<span id="cart-total-price">0</span></span>
         </div>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <span id="cart-total-qty" style="font-size: 0.8rem; color: #666;">0 Items</span><br>
-                <span style="font-size: 1.2rem; font-weight: 800;">Total: ₹<span id="cart-total-price">0</span></span>
-            </div>
-            <button id="main-order-btn" class="order-btn" onclick="placeOrder()">Confirm & Pay</button>
-        </div>
+        <button class="order-btn" onclick="placeOrder()">Place Order via Dashboard</button>
     </div>
 
     <script>
-        // GOOGLE SHEETS SETTINGS
-        const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfYGXB2Lim7wtiFCYy8U7MtV9DN9X2Tm7zSkx-qYxPLSLRcUg/formResponse";
-        const ENTRY_DETAILS = "entry.1304197339";
-        const ENTRY_TOTAL = "entry.248975380";
-        const ENTRY_HOTEL = "entry.164020655";
-
-        let userLocation = "";
         let cart = {};
-        let unavailableItems = JSON.parse(localStorage.getItem('raghuveer_unavailable')) || {};
-
-        function h(el) {
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active-cat'));
-            el.classList.add('active-cat');
-        }
+        let userLocation = "";
 
         const finalMenu = {
             pizzas: [
@@ -550,130 +247,111 @@
                 { id: "mk5", name: "Sprite/Coke/Thumps-up", p: 50 }
             ],
             combos: [
-                { id: "co1", name: "Regular Combo A (Pizza S+Coke)", p: 210 },
-                { id: "co2", name: "Regular Combo A (Veg Sandwich+Fries+Coffee)", p: 200 },
-                { id: "co3", name: "Regular Combo B (White Pasta+Fries+Coffee)", p: 260 },
-                { id: "co4", name: "Mini Combo (Veg Cheese Frankie+Fries+Coffee)", p: 270 },
-                { id: "co5", name: "Special Combo (Raghuveer Grill+Fries+Coffee)", p: 300 },
-                { id: "co6", name: "Nuggets Fries Combo (Nuggets+Fries+Coffee)", p: 250 },
-                { id: "co7", name: "Mini Combo A (Burger+Fries+Coffee)", p: 230 },
-                { id: "co8", name: "Special Combo A (Spl Burger+Spl Fries+Coke)", p: 310 },
-                { id: "co9", name: "Mini Combo B (Spl Burst Pizza S+Fries+Coffee)", p: 360 },
-                { id: "co10", name: "Special Combo B (Spl Pizza M+Fries+Coffee)", p: 450 }
+                { id: "co1", name: "Combo A (Pizza S+Coke)", p: 210 },
+                { id: "co5", name: "Special Combo (Grill+Fries+Coffee)", p: 300 },
+                { id: "co10", name: "Special Combo B (Pizza M+Fries+Coffee)", p: 450 }
             ]
         };
 
-        function checkAdmin() {
-            const pass = prompt("Enter Access Code:");
-            if (pass === "20106669") openAdmin();
+        function openMenu() {
+            document.getElementById('landing-page').style.display = 'none';
+            document.getElementById('menu-container').style.display = 'block';
+            renderUI();
         }
 
-        function openAdmin() {
-            const list = document.getElementById('admin-controls-list');
-            list.innerHTML = "";
-            document.getElementById('admin-panel').style.display = 'block';
-            for(let cat in finalMenu) {
-                list.innerHTML += `<h3 style="background:#eee; padding:5px;">${cat.toUpperCase()}</h3>`;
-                finalMenu[cat].forEach(item => {
-                    const isOff = unavailableItems[item.id];
-                    list.innerHTML += `<div class="admin-item-row"><span>${item.name}</span><button class="status-btn ${isOff ? 'btn-off' : 'btn-on'}" onclick="toggleVisibility('${item.id}', this)">${isOff ? 'OFF' : 'ON'}</button></div>`;
-                });
-            }
-        }
+        function renderUI() {
+            const tabs = document.getElementById('tab-bar');
+            const list = document.getElementById('full-menu-list');
+            tabs.innerHTML = ""; list.innerHTML = "";
 
-        function toggleVisibility(id, btn) {
-            if (unavailableItems[id]) delete unavailableItems[id];
-            else unavailableItems[id] = true;
-            localStorage.setItem('raghuveer_unavailable', JSON.stringify(unavailableItems));
-            btn.innerText = unavailableItems[id] ? "OFF" : "ON";
-            btn.className = `status-btn ${unavailableItems[id] ? 'btn-off' : 'btn-on'}`;
-            renderAll();
-        }
-
-        function closeAdmin() { document.getElementById('admin-panel').style.display = 'none'; }
-        function openMenu() { document.getElementById('landing-page').style.display = 'none'; document.getElementById('menu-container').style.display = 'block'; renderAll(); }
-
-        function renderAll() {
             for (let cat in finalMenu) {
-                const type = (cat === 'pizzas') ? 'pizza' : 
-                             (['burgers','sandwiches','fries','momos','coffee'].includes(cat) ? 'multi' : 'single');
-                renderList('list-' + cat, finalMenu[cat], type);
+                // Create Tab
+                const tab = document.createElement('a');
+                tab.href = `#sec-${cat}`;
+                tab.className = "nav-item";
+                tab.innerText = cat;
+                tab.onclick = (e) => {
+                    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active-cat'));
+                    tab.classList.add('active-cat');
+                };
+                tabs.appendChild(tab);
+
+                // Create Section
+                const sec = document.createElement('section');
+                sec.id = `sec-${cat}`;
+                sec.innerHTML = `<div class="section-header">${cat}</div>`;
+                
+                finalMenu[cat].forEach(item => {
+                    let price = item.p; let activeSize = ""; let controls = "";
+                    if (typeof item.p === 'object') {
+                        const keys = Object.keys(item.p);
+                        price = item.p[keys[0]]; activeSize = keys[0];
+                        controls = `<div class="size-group">` + keys.map((k,i) => `<button class="size-pill ${i===0?'active':''}" onclick="updSize(this, ${item.p[k]}, '${k}')">${k}</button>`).join('') + `</div>`;
+                    }
+                    
+                    sec.innerHTML += `
+                        <div class="menu-card" data-name="${item.name}" data-size="${activeSize}" data-price="${price}">
+                            <div style="flex:1"><span class="item-name">${item.name}</span>${controls}</div>
+                            <div style="text-align:right">
+                                <span style="font-weight:800; font-size:1rem;">₹${price}</span>
+                                <div class="qty-box">
+                                    <button class="btn-circle" onclick="changeQty(this,-1)">-</button>
+                                    <span class="qty-val">0</span>
+                                    <button class="btn-circle" onclick="changeQty(this,1)">+</button>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+                list.appendChild(sec);
             }
+            tabs.firstChild.classList.add('active-cat');
         }
 
-        function renderList(id, list, type) {
-            const container = document.getElementById(id);
-            if(!container) return;
-            container.innerHTML = '';
-            list.forEach(item => {
-                if (unavailableItems[item.id]) return;
-                let controls = ''; let price = item.p; let activeSize = '';
-                if (type === 'pizza') {
-                    price = item.p.S; activeSize = 'S';
-                    controls = `<div class="size-group"><button class="size-pill active" onclick="upd(this, ${item.p.S}, 'S')">S</button><button class="size-pill" onclick="upd(this, ${item.p.M}, 'M')">M</button><button class="size-pill" onclick="upd(this, ${item.p.B}, 'B')">B</button></div>`;
-                } else if (type === 'multi') {
-                    const keys = Object.keys(item.p);
-                    price = item.p[keys[0]]; activeSize = keys[0];
-                    controls = `<div class="size-group">` + keys.map((k,i) => `<button class="size-pill ${i===0?'active':''}" onclick="upd(this, ${item.p[k]}, '${k}')">${k}</button>`).join('') + `</div>`;
-                }
-                container.innerHTML += `<div class="menu-card" data-name="${item.name}" data-size="${activeSize}" data-price="${price}"><div><span class="item-name">${item.name}</span>${controls}</div><div style="text-align:right"><span class="price-text">₹${price}</span><div class="qty-box"><button class="btn-circle" onclick="q(this,-1)">-</button><span class="qty-val">0</span><button class="btn-circle" onclick="q(this,1)">+</button></div></div></div>`;
-            });
-        }
-
-        function upd(btn, price, size) {
+        function updSize(btn, price, size) {
             const card = btn.closest('.menu-card');
             btn.parentElement.querySelectorAll('.size-pill').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            card.querySelector('.price-text').innerText = '₹' + price;
             card.setAttribute('data-price', price);
             card.setAttribute('data-size', size);
+            card.querySelector('span[style*="font-weight:800"]').innerText = '₹' + price;
             card.querySelector('.qty-val').innerText = "0";
-            updateCartData(card.getAttribute('data-name'), size, price, 0);
+            updateCart(card.getAttribute('data-name'), size, price, 0);
         }
 
-        function q(btn, change) {
+        function changeQty(btn, change) {
             const card = btn.closest('.menu-card');
             const span = btn.parentElement.querySelector('.qty-val');
             let val = parseInt(span.innerText) + change;
             if (val < 0) val = 0;
             span.innerText = val;
-            updateCartData(card.getAttribute('data-name'), card.getAttribute('data-size') || '', parseInt(card.getAttribute('data-price')), val);
+            updateCart(card.getAttribute('data-name'), card.getAttribute('data-size'), parseInt(card.getAttribute('data-price')), val);
         }
 
-        function updateCartData(name, size, price, qty) {
-            const key = name + (size ? ` (${size})` : "");
-            if (qty > 0) cart[key] = { qty, price, total: qty * price };
+        function updateCart(name, size, price, qty) {
+            const key = name + (size ? " (" + size + ")" : "");
+            if (qty > 0) cart[key] = { qty, total: qty * price };
             else delete cart[key];
-            renderCart();
-        }
-
-        function renderCart() {
-            const list = document.getElementById('cart-items-list');
-            let html = ''; let subTotal = 0; let totalItems = 0;
-            for (let k in cart) {
-                html += `<div class="cart-row"><span>${k} x ${cart[k].qty}</span><span>₹${cart[k].total}</span></div>`;
-                subTotal += cart[k].total; totalItems += cart[k].qty;
+            
+            let total = 0; let html = ""; let count = 0;
+            for(let k in cart) {
+                total += cart[k].total; count++;
+                html += `<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>${k} x ${cart[k].qty}</span><span>₹${cart[k].total}</span></div>`;
             }
-            let packTotal = totalItems * 10;
-            let deliveryFee = totalItems > 0 ? (subTotal <= 100 ? 15 : Math.round(subTotal * 0.15)) : 0;
-            const grandTotal = totalItems > 0 ? (subTotal + packTotal + deliveryFee) : 0;
-            list.innerHTML = html;
-            document.getElementById('pack-total').innerText = "₹" + packTotal;
-            document.getElementById('delivery-total').innerText = "₹" + deliveryFee;
-            document.getElementById('cart-total-price').innerText = grandTotal;
-            document.getElementById('cart-total-qty').innerText = totalItems + " Items";
-            document.getElementById('cart-box').style.display = totalItems > 0 ? 'flex' : 'none';
+            document.getElementById('cart-total-price').innerText = total;
+            document.getElementById('cart-items-list').innerHTML = html;
+            document.getElementById('cart-box').style.display = count > 0 ? "flex" : "none";
         }
 
         function getLocation() {
             const btn = document.getElementById('loc-btn');
-            btn.innerText = "🔍 Accessing Location...";
-            navigator.geolocation.getCurrentPosition((pos) => {
-                userLocation = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
-                btn.style.background = "#27ae60";
-                btn.innerText = "✅ Location Locked";
-                document.getElementById('main-order-btn').style.display = 'block';
-            }, () => alert("Location required for delivery."));
+            if (navigator.geolocation) {
+                btn.innerText = "Locating...";
+                navigator.geolocation.getCurrentPosition(pos => {
+                    userLocation = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+                    btn.innerText = "✅ Location Locked";
+                    btn.style.background = "#27ae60";
+                }, () => alert("Please allow location access."));
+            }
         }
     </script>
 </body>
