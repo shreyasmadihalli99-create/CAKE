@@ -59,77 +59,72 @@
                 document.getElementById('success-overlay').style.display = 'flex';
                 window.scrollTo(0,0);
             } catch (err) {
-                alert("Order failed. Check internet.");
+                alert("Order failed. Please check connection.");
             }
         };
     </script>
 
     <style>
-        :root { --primary: #e67e22; --dark: #2d3436; }
+        :root { --primary: #e67e22; --dark: #2d3436; --light: #f8f9fa; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, sans-serif; margin: 0; background: #f4f4f4; }
+        body { font-family: -apple-system, sans-serif; margin: 0; background: #f4f4f4; color: var(--dark); overflow-x: hidden; }
 
+        /* Mobile Fix: Category Nav */
         .category-nav {
             position: sticky; top: 0; z-index: 1000; background: white;
-            display: flex; overflow-x: auto; padding: 10px; gap: 10px;
+            display: flex; overflow-x: auto; padding: 12px 8px; gap: 8px;
             border-bottom: 2px solid var(--primary); scrollbar-width: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         .category-nav::-webkit-scrollbar { display: none; }
-
         .nav-item {
-            padding: 8px 18px; background: #eee; border-radius: 20px;
+            padding: 8px 16px; background: #eee; border-radius: 20px;
             white-space: nowrap; font-size: 13px; text-decoration: none;
-            color: #444; font-weight: 700; flex-shrink: 0;
+            color: #555; font-weight: 700; flex-shrink: 0;
         }
-        .nav-item.active-cat { background: var(--primary); color: white; }
+        .nav-item.active-cat { background: var(--primary) !important; color: white !important; }
 
-        .menu-card {
-            background: white; margin: 8px; padding: 12px; border-radius: 10px;
-            display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        .item-info { flex: 1; }
-        .item-name { font-weight: 700; font-size: 14px; display: block; margin-bottom: 4px; }
+        /* Menu Display */
+        .section-header { padding: 15px; font-size: 18px; font-weight: 800; color: var(--primary); background: white; border-bottom: 1px solid #eee; margin-top: 10px; }
+        .menu-card { background: white; margin-bottom: 1px; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f0f0; }
+        .item-info { flex: 1; padding-right: 10px; }
+        .item-name { font-weight: 700; font-size: 15px; display: block; margin-bottom: 5px; }
         
-        .size-group { display: flex; gap: 4px; margin-top: 4px; }
-        .size-pill {
-            padding: 3px 8px; font-size: 10px; border: 1px solid #ddd;
-            background: #fff; border-radius: 4px; font-weight: bold;
-        }
-        .size-pill.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .size-group { display: flex; background: #f1f1f1; border-radius: 6px; padding: 2px; width: fit-content; margin-top: 5px; }
+        .size-pill { padding: 4px 10px; font-size: 11px; border: none; background: none; border-radius: 4px; font-weight: 700; color: #666; cursor: pointer; }
+        .size-pill.active { background: white; color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
         .price-box { text-align: right; min-width: 90px; }
-        .price-text { font-weight: 800; font-size: 16px; color: #000; }
-        .qty-box { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 5px; }
-        .btn-circle { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--primary); background: white; color: var(--primary); font-weight: bold; display: flex; align-items: center; justify-content: center; }
+        .price-text { font-weight: 800; font-size: 16px; color: #000; display: block; }
+        .qty-box { display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin-top: 8px; }
+        .btn-circle { width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid var(--primary); background: white; color: var(--primary); font-weight: bold; display: flex; align-items: center; justify-content: center; font-size: 18px; }
 
-        #cart-box {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            background: white; box-shadow: 0 -4px 15px rgba(0,0,0,0.15);
-            z-index: 2000; display: none; padding: 15px;
-            border-top-left-radius: 20px; border-top-right-radius: 20px;
-        }
-        .details-input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid #ddd; border-radius: 8px; }
-        .section-header { padding: 12px 15px; font-weight: 800; color: var(--primary); background: #fdfdfd; font-size: 16px; border-bottom: 1px solid #eee; }
-        
+        /* Cart UI */
+        #cart-box { position: fixed; bottom: 0; left: 0; width: 100%; background: white; box-shadow: 0 -5px 20px rgba(0,0,0,0.15); z-index: 2000; display: none; flex-direction: column; border-top-left-radius: 20px; border-top-right-radius: 20px; padding: 15px; }
+        .details-input { width: 100%; padding: 12px; margin-bottom: 8px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
+        .order-btn { background: #27ae60; color: white; border: none; padding: 15px; border-radius: 10px; font-weight: 800; font-size: 16px; width: 100%; cursor: pointer; margin-top: 10px; }
+
         #landing-page { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #222; color: white; text-align: center; }
-        #success-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 5000; flex-direction: column; justify-content: center; align-items: center; }
+        .enter-btn { background: var(--primary); color: white; padding: 18px 60px; border-radius: 50px; border: none; font-size: 1.1rem; font-weight: 700; cursor: pointer; }
+        #success-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 5000; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
     </style>
 </head>
 <body>
 
     <div id="success-overlay">
-        <h2 style="color: #27ae60;">✔ Order Sent!</h2>
-        <button onclick="location.reload()" style="padding:10px 30px; background:var(--primary); color:white; border:none; border-radius:20px;">Back to Menu</button>
+        <h2 style="color: #27ae60;">✔ Order Received!</h2>
+        <p>Your meal is being prepared.</p>
+        <button class="enter-btn" onclick="location.reload()">New Order</button>
     </div>
 
     <div id="landing-page">
-        <h1>Raghuveer Café</h1>
-        <button onclick="openMenu()" style="padding:15px 40px; background:var(--primary); color:white; border:none; border-radius:30px; font-weight:bold;">EXPLORE MENU</button>
+        <h1 style="font-size: 2.5rem;">Raghuveer Café</h1>
+        <p>Hot & Fresh Delivery</p>
+        <button class="enter-btn" onclick="openMenu()">View Menu</button>
     </div>
 
     <div id="menu-container" style="display:none; padding-bottom: 350px;">
-        <div class="category-nav">
+        <div class="category-nav" id="cat-nav">
             <a href="#pizzas" class="nav-item active-cat" onclick="h(this)">Pizzas</a>
             <a href="#burgers" class="nav-item" onclick="h(this)">Burgers</a>
             <a href="#sandwiches" class="nav-item" onclick="h(this)">Sandwiches</a>
@@ -139,132 +134,226 @@
             <a href="#maggie" class="nav-item" onclick="h(this)">Maggie</a>
             <a href="#nuggets" class="nav-item" onclick="h(this)">Nuggets</a>
             <a href="#frankie" class="nav-item" onclick="h(this)">Frankie</a>
-            <a href="#coffee" class="nav-item" onclick="h(this)">Coffee</a>
-            <a href="#milkshakes" class="nav-item" onclick="h(this)">Shakes</a>
+            <a href="#coffee" class="nav-item" onclick="h(this)">Cold Coffee</a>
+            <a href="#milkshakes" class="nav-item" onclick="h(this)">Milkshakes</a>
             <a href="#mastani" class="nav-item" onclick="h(this)">Mastani</a>
+            <a href="#hotcoffee" class="nav-item" onclick="h(this)">Hot Coffee</a>
             <a href="#cadb" class="nav-item" onclick="h(this)">Cad-B</a>
             <a href="#mocktails" class="nav-item" onclick="h(this)">Mocktails</a>
             <a href="#combos" class="nav-item" onclick="h(this)">Combos</a>
         </div>
+
         <div id="menu-content"></div>
     </div>
 
     <div id="cart-box">
-        <input type="text" id="cust-name" class="details-input" placeholder="Name">
-        <input type="tel" id="cust-phone" class="details-input" placeholder="10-Digit Mobile">
-        <button id="loc-btn" onclick="getLocation()" style="width:100%; padding:10px; margin-bottom:10px; background:#3498db; color:white; border:none; border-radius:8px; font-weight:bold;">📍 Share Location</button>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
+        <input type="text" id="cust-name" class="details-input" placeholder="Your Full Name">
+        <input type="tel" id="cust-phone" class="details-input" placeholder="10-Digit Mobile Number">
+        <button id="loc-btn" onclick="getLocation()" style="background:#3498db; color:white; border:none; padding:12px; border-radius:8px; font-weight:700; width:100%;">📍 Share Live Location</button>
+        <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
             <div style="font-weight:800; font-size:18px;">Total: ₹<span id="cart-total-price">0</span></div>
-            <button id="main-order-btn" onclick="placeOrder()" style="display:none; background:#27ae60; color:white; padding:12px 20px; border:none; border-radius:8px; font-weight:800;">Order Now</button>
+            <button id="main-order-btn" class="order-btn" onclick="placeOrder()" style="display:none; width:auto; padding:10px 30px;">Confirm Order</button>
         </div>
     </div>
 
     <script>
-        let userLocation = ""; let cart = {};
-        const menuData = {
+        let userLocation = "";
+        let cart = {};
+
+        const fullMenu = {
             pizzas: [
                 { id: "pz1", name: "Veg Cheese Pizza", p: {S:120, M:140, B:240} },
                 { id: "pz2", name: "Sweet Corn Veg Cheese", p: {S:140, M:160, B:260} },
                 { id: "pz3", name: "Baby Corn Veg Cheese", p: {S:140, M:160, B:260} },
                 { id: "pz4", name: "Mushroom Veg Corn", p: {S:150, M:170, B:270} },
                 { id: "pz5", name: "Paneer Yummy Pizza", p: {S:160, M:180, B:280} },
+                { id: "pz6", name: "Chocolate Cheese Pizza", p: {S:140, M:160, B:260} },
+                { id: "pz7", name: "Mix Loaded Cheese Pizza", p: {S:160, M:190, B:290} },
+                { id: "pz8", name: "Jain Veg Cheese Pizza", p: {S:130, M:160, B:260} },
+                { id: "pz9", name: "Jain Cheese Burst Pizza", p: {S:180, M:210, B:310} },
+                { id: "pz10", name: "Yummy Cheese Burst Pizza", p: {S:180, M:210, B:310} },
+                { id: "pz11", name: "Italian Yummy Burst", p: {S:200, M:230, B:330} },
                 { id: "pz12", name: "Raghuveer Spl Tandoor Burst", p: {S:210, M:240, B:340} },
-                { id: "pz14", name: "Raghuveer Spl Cheese Pizza", p: {S:200, M:230, B:330} }
+                { id: "pz13", name: "Cheese Burst Punjabi Tadka", p: {S:230, M:260, B:360} },
+                { id: "pz14", name: "Raghuveer Spl Cheese Pizza", p: {S:200, M:230, B:330} },
+                { id: "pz15", name: "Dryfruit Raghuveer Spl Pizza", p: {S:220, M:250, B:350} }
             ],
             burgers: [
                 { id: "bg1", name: "Veg Aloo Tikki Burger", p: {Maida:60, Wheat:70} },
+                { id: "bg2", name: "Cheese Aloo Tikki Burger", p: {Maida:70, Wheat:80} },
+                { id: "bg3", name: "Raghuveer Spl Tikki Burger", p: {Maida:80, Wheat:90} },
+                { id: "bg4", name: "Veg Burger", p: {Maida:70, Wheat:80} },
                 { id: "bg5", name: "Veg Cheese Burger", p: {Maida:80, Wheat:90} },
-                { id: "bg12", name: "Paneer Cheese Burger", p: {Maida:140, Wheat:150} }
+                { id: "bg6", name: "Raghuveer Special Burger", p: {Maida:90, Wheat:100} },
+                { id: "bg7", name: "Veg Cheese Tandoor Burger", p: {Maida:110, Wheat:120} },
+                { id: "bg8", name: "Chilli Potato Burger", p: {Maida:70, Wheat:80} },
+                { id: "bg9", name: "Chilli Potato Cheese Burger", p: {Maida:80, Wheat:90} },
+                { id: "bg10", name: "Raghuveer Special Chilli Burger", p: {Maida:90, Wheat:100} },
+                { id: "bg11", name: "Raghuveer Spl Chilli Tandoor", p: {Maida:110, Wheat:120} },
+                { id: "bg12", name: "Paneer Cheese Burger", p: {Maida:140, Wheat:150} },
+                { id: "bg13", name: "Raghuveer Special Paneer Burger", p: {Maida:150, Wheat:160} },
+                { id: "bg14", name: "Raghuveer Paneer Tandoor Burger", p: {Maida:160, Wheat:170} }
             ],
             sandwiches: [
                 { id: "sw1", name: "Veg Sandwich", p: {Maida:50, Wheat:60} },
+                { id: "sw2", name: "Veg Cheese Sandwich", p: {Maida:60, Wheat:70} },
                 { id: "sw3", name: "Veg Cheese Grill Sandwich", p: {Maida:70, Wheat:80} },
+                { id: "sw4", name: "Paneer Cheese Grill Sandwich", p: {Maida:90, Wheat:100} },
+                { id: "sw5", name: "Sweet Corn Cheese Grill", p: {Maida:80, Wheat:90} },
                 { id: "sw6", name: "Raghuveer Spl Cheese Grill", p: {Maida:100, Wheat:110} }
             ],
             fries: [
                 { id: "fr1", name: "Salted French Fries", p: {Small:60, Big:90} },
+                { id: "fr2", name: "Peri-Peri Fries", p: {Small:70, Big:100} },
                 { id: "fr3", name: "Liquid Cheese Fries", p: {Small:90, Big:120} },
+                { id: "fr4", name: "Double Cheese Fries", p: {Small:100, Big:130} },
                 { id: "fr5", name: "Raghuveer Special Fries", p: {Small:110, Big:140} }
             ],
             momos: [
                 { id: "mo1", name: "Mix Veg Momos", p: {Steam:100, Fry:110} },
-                { id: "mo2", name: "Paneer Momos", p: {Steam:110, Fry:120} }
+                { id: "mo2", name: "Paneer Momos", p: {Steam:110, Fry:120} },
+                { id: "mo3", name: "Cheese Corn Momos", p: {Steam:120, Fry:130} },
+                { id: "mo4", name: "Raghuveer Spl Momos", p: {Steam:140, Fry:150} }
             ],
             pasta: [
-                { id: "pa1", name: "White Pasta", p: 120 }, { id: "pa3", name: "Red Pasta", p: 130 }
+                { id: "pa1", name: "White Pasta", p: 120 }, { id: "pa2", name: "White Cheese Pasta", p: 140 },
+                { id: "pa3", name: "Red Pasta", p: 130 }, { id: "pa4", name: "Red Cheese Pasta", p: 150 }
             ],
             maggie: [
-                { id: "mg1", name: "Regular Maggie", p: 70 }, { id: "mg4", name: "Cheese Maggie", p: 100 }
+                { id: "mg1", name: "Regular Maggie", p: 70 }, { id: "mg2", name: "Masala Maggie", p: 80 },
+                { id: "mg3", name: "Vegetable Special Maggie", p: 90 }, { id: "mg4", name: "Cheese Maggie", p: 100 },
+                { id: "mg5", name: "Raghuveer Special Maggie", p: 110 }
             ],
             nuggets: [
-                { id: "nu1", name: "Veggie Fingers", p: 80 }, { id: "nu3", name: "Cheese Corn Triangles", p: 100 }
+                { id: "nu1", name: "Veggie Fingers", p: 80 }, { id: "nu2", name: "Chilli-Garlic Bites", p: 80 },
+                { id: "nu3", name: "Cheese Corn Triangles", p: 100 }
             ],
             frankie: [
-                { id: "fn1", name: "Veg Frankie Roll", p: 100 }, { id: "fn5", name: "Paneer Frankie", p: 120 }
+                { id: "fn1", name: "Veg Frankie Roll", p: 100 }, { id: "fn2", name: "Veg Cheese Frankie Roll", p: 120 },
+                { id: "fn3", name: "Veg Cheese Tandoor Frankie", p: 130 }, { id: "fn4", name: "Raghuveer Spl Tandoor Frankie", p: 140 },
+                { id: "fn5", name: "Paneer Frankie Roll", p: 120 }, { id: "fn6", name: "Paneer Cheese Frankie Roll", p: 130 },
+                { id: "fn7", name: "Raghuveer Spl Paneer Frankie", p: 150 }
             ],
             coffee: [
-                { id: "cf1", name: "Cold Coffee", p: {Glass:50, Jumbo:70} },
-                { id: "cf5", name: "Spl Coffee+Icecream+Chips", p: {Glass:100, Jumbo:120} }
+                { id: "cf1", name: "Regular Cold Coffee", p: {Glass:50, Jumbo:70} },
+                { id: "cf2", name: "Chocolate Cold Coffee", p: {Glass:60, Jumbo:80} },
+                { id: "cf3", name: "Ch. Cold Coffee + Icecream", p: {Glass:70, Jumbo:90} },
+                { id: "cf4", name: "Ch. Cold Coffee + Chocochips", p: {Glass:80, Jumbo:100} },
+                { id: "cf5", name: "Ch. Cold Coffee + Icecream + Chips", p: {Glass:100, Jumbo:120} }
             ],
             milkshakes: [
-                { id: "ms5", name: "Oreo Shake", p: 80 }, { id: "ms6", name: "Kitkat Milkshake", p: 90 }
+                { id: "ms1", name: "Apple + Butterscotch", p: 70 }, { id: "ms2", name: "Apple + Icecream", p: 80 },
+                { id: "ms3", name: "Mango Milkshake", p: 80 }, { id: "ms4", name: "Sweet Strawberry", p: 80 },
+                { id: "ms5", name: "Crunchy Oreo Shake", p: 80 }, { id: "ms6", name: "Kitkat Milkshake", p: 90 },
+                { id: "ms7", name: "Vanilla Milkshake", p: 80 }, { id: "ms8", name: "Raghuveer Spl Mix Shake", p: 100 }
             ],
             mastani: [
-                { id: "mt1", name: "Mango Mastani", p: 100 }, { id: "mt5", name: "Raghuveer Spl Mastani", p: 120 }
+                { id: "mt1", name: "Mango Dryfruit Mastani", p: 100 }, { id: "mt2", name: "Butterscotch Dryfruit Mastani", p: 100 },
+                { id: "mt3", name: "Strawberry Dryfruit Mastani", p: 100 }, { id: "mt4", name: "Peshwai Mastani", p: 110 },
+                { id: "mt5", name: "Raghuveer Spl Mastani", p: 120 }
+            ],
+            hotcoffee: [
+                { id: "hc1", name: "Regular Hot Coffee", p: 30 }, { id: "hc2", name: "Couple Hot Coffee", p: 50 },
+                { id: "hc3", name: "Chocolate Hot Coffee", p: 40 }, { id: "hc4", name: "Couple Choc. Hot Coffee", p: 60 }
             ],
             cadb: [
-                { id: "cb1", name: "Chocolate Cad-B", p: 100 }, { id: "cb2", name: "Jumbo Cad-B", p: 120 }
+                { id: "cb1", name: "Chocolate Cad-B", p: 100 }, { id: "cb2", name: "Jumbo Chocolate Cad-B", p: 120 },
+                { id: "cb3", name: "Vanilla Cad-B", p: 100 }, { id: "cb4", name: "Mango Spl Cad-B", p: 110 }
             ],
             mocktails: [
-                { id: "mk1", name: "Watermelon Mocktail", p: 80 }, { id: "mk4", name: "Mojito Mint", p: 90 }
+                { id: "mk1", name: "Watermelon Mocktail", p: 80 }, { id: "mk2", name: "Green Apple Mocktail", p: 80 },
+                { id: "mk3", name: "Blueberry Mocktail", p: 80 }, { id: "mk4", name: "Mojito Mint", p: 90 },
+                { id: "mk5", name: "Sprite/Coke/Thumps-up", p: 50 }
             ],
             combos: [
-                { id: "co1", name: "Pizza S + Coke", p: 210 }, { id: "co7", name: "Burger + Fries + Coffee", p: 230 }
+                { id: "co1", name: "Regular Combo A (Pizza S+Coke)", p: 210 },
+                { id: "co7", name: "Mini Combo A (Burger+Fries+Coffee)", p: 230 },
+                { id: "co8", name: "Special Combo A (Spl Burger+Spl Fries+Coke)", p: 310 },
+                { id: "co10", name: "Special Combo B (Spl Pizza M+Fries+Coffee)", p: 450 }
             ]
         };
 
-        function h(el) { document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active-cat')); el.classList.add('active-cat'); }
-        function openMenu() { document.getElementById('landing-page').style.display='none'; document.getElementById('menu-container').style.display='block'; renderMenu(); }
+        function h(el) {
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active-cat'));
+            el.classList.add('active-cat');
+        }
 
-        function renderMenu() {
-            const container = document.getElementById('menu-content'); container.innerHTML = "";
-            for (let cat in menuData) {
-                let html = `<section id="${cat}"><div class="section-header">${cat.toUpperCase()}</div>`;
-                menuData[cat].forEach(item => {
-                    let price = typeof item.p === 'object' ? Object.values(item.p)[0] : item.p;
-                    let size = typeof item.p === 'object' ? Object.keys(item.p)[0] : "";
-                    let sizeHtml = typeof item.p === 'object' ? `<div class="size-group">` + Object.keys(item.p).map((s, i) => `<button class="size-pill ${i===0?'active':''}" onclick="changeSize(this, '${s}', ${item.p[s]})">${s}</button>`).join('') + `</div>` : "";
-                    html += `<div class="menu-card" data-name="${item.name}" data-price="${price}" data-size="${size}"><div class="item-info"><span class="item-name">${item.name}</span>${sizeHtml}</div><div class="price-box"><span class="price-text">₹${price}</span><div class="qty-box"><button class="btn-circle" onclick="updateQty(this, -1)">-</button><span class="qty-val">0</span><button class="btn-circle" onclick="updateQty(this, 1)">+</button></div></div></div>`;
+        function openMenu() {
+            document.getElementById('landing-page').style.display = 'none';
+            document.getElementById('menu-container').style.display = 'block';
+            renderAll();
+        }
+
+        function renderAll() {
+            const content = document.getElementById('menu-content');
+            content.innerHTML = "";
+            for (let cat in fullMenu) {
+                let section = `<section id="${cat}"><div class="section-header">${cat.toUpperCase()}</div>`;
+                fullMenu[cat].forEach(item => {
+                    let isObject = typeof item.p === 'object';
+                    let price = isObject ? Object.values(item.p)[0] : item.p;
+                    let size = isObject ? Object.keys(item.p)[0] : "";
+                    
+                    let sizeHtml = isObject ? `<div class="size-group">` + Object.keys(item.p).map((s, i) => 
+                        `<button class="size-pill ${i===0?'active':''}" onclick="changeSize(this, '${s}', ${item.p[s]})">${s}</button>`
+                    ).join('') + `</div>` : "";
+
+                    section += `
+                        <div class="menu-card" data-name="${item.name}" data-price="${price}" data-size="${size}">
+                            <div class="item-info">
+                                <span class="item-name">${item.name}</span>
+                                ${sizeHtml}
+                            </div>
+                            <div class="price-box">
+                                <span class="price-text">₹${price}</span>
+                                <div class="qty-box">
+                                    <button class="btn-circle" onclick="updateQty(this, -1)">-</button>
+                                    <span class="qty-val">0</span>
+                                    <button class="btn-circle" onclick="updateQty(this, 1)">+</button>
+                                </div>
+                            </div>
+                        </div>`;
                 });
-                container.innerHTML += html + `</section>`;
+                content.innerHTML += section + `</section>`;
             }
         }
 
         function changeSize(btn, size, price) {
-            const card = btn.closest('.menu-card'); card.querySelectorAll('.size-pill').forEach(b => b.classList.remove('active')); btn.classList.add('active');
-            card.setAttribute('data-price', price); card.setAttribute('data-size', size); card.querySelector('.price-text').innerText = '₹' + price;
-            card.querySelector('.qty-val').innerText = "0"; syncCart(card.getAttribute('data-name'), size, price, 0);
+            const card = btn.closest('.menu-card');
+            card.querySelectorAll('.size-pill').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            card.setAttribute('data-price', price);
+            card.setAttribute('data-size', size);
+            card.querySelector('.price-text').innerText = '₹' + price;
+            card.querySelector('.qty-val').innerText = "0";
+            syncCart(card.getAttribute('data-name'), size, price, 0);
         }
 
         function updateQty(btn, delta) {
-            const card = btn.closest('.menu-card'); const qSpan = card.querySelector('.qty-val');
-            let q = Math.max(0, parseInt(qSpan.innerText) + delta); qSpan.innerText = q;
+            const card = btn.closest('.menu-card');
+            const qSpan = card.querySelector('.qty-val');
+            let q = Math.max(0, parseInt(qSpan.innerText) + delta);
+            qSpan.innerText = q;
             syncCart(card.getAttribute('data-name'), card.getAttribute('data-size'), parseInt(card.getAttribute('data-price')), q);
         }
 
         function syncCart(name, size, price, qty) {
-            const key = name + (size ? ` (${size})` : ""); if(qty > 0) cart[key] = { qty, price, total: qty * price }; else delete cart[key];
-            let total = 0; for(let k in cart) total += cart[k].total;
+            const key = name + (size ? ` (${size})` : "");
+            if(qty > 0) cart[key] = { qty, price, total: qty * price };
+            else delete cart[key];
+            
+            let total = 0;
+            for(let k in cart) total += cart[k].total;
             document.getElementById('cart-total-price').innerText = total;
-            document.getElementById('cart-box').style.display = total > 0 ? 'block' : 'none';
+            document.getElementById('cart-box').style.display = total > 0 ? 'flex' : 'none';
         }
 
         function getLocation() {
             navigator.geolocation.getCurrentPosition(p => {
                 userLocation = `https://www.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`;
-                document.getElementById('loc-btn').innerText = "✅ Location Shared";
+                document.getElementById('loc-btn').innerText = "✅ Location Locked";
                 document.getElementById('main-order-btn').style.display = "block";
-            });
+            }, () => alert("Please enable GPS."));
         }
     </script>
 </body>
