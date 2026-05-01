@@ -164,7 +164,6 @@
     </main>
 
 <script type="module">
-    // --- FIREBASE CONFIGURATION ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -180,7 +179,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // --- GLOBAL VARIABLES & MENU ---
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx2CcnPwPfW3lFfxQKf7x0-oarxx28K4K2INt8yFAl1d5hwdCwJpITJdFYJxrOuDwDm/exec";
     let cart = {}; 
     let gpsLink = "";
@@ -544,7 +542,8 @@
 
         let totalQty = 0;
         for(let k in cart) { if(cart[k].originId === id) totalQty += cart[k].qty; }
-        document.getElementById(`qty-count-${id}`).innerText = totalQty;
+        const el = document.getElementById(`qty-count-${id}`);
+        if(el) el.innerText = totalQty;
 
         updateGlobalCart();
     };
@@ -559,13 +558,14 @@
         }
 
         const gst = Math.round(subtotal * 0.05);
-        const delCharge = subtotal === 0 ? 0 : ( (subtotal + gst) < 100 ? 15 : Math.round((subtotal + gst) * 0.15) );
+        const taxedSubtotal = subtotal + gst;
+        const delCharge = subtotal === 0 ? 0 : ( taxedSubtotal < 100 ? 15 : Math.round(taxedSubtotal * 0.15) );
 
         document.getElementById('cart-summary').innerHTML = listHtml || "Your cart is empty";
         document.getElementById('subtotal-val').innerText = "₹" + subtotal;
         document.getElementById('gst-val').innerText = "₹" + gst;
         document.getElementById('delivery-val').innerText = "₹" + delCharge;
-        document.getElementById('grand-total').innerText = subtotal + gst + delCharge;
+        document.getElementById('grand-total').innerText = taxedSubtotal + delCharge;
         document.getElementById('cart-popup').classList.toggle('active', count > 0);
     }
 
@@ -578,9 +578,10 @@
     };
 
     window.submitOrder = async () => {
-        const n = document.getElementById('cust-name').value;
-        const p = document.getElementById('cust-phone').value;
-        if(!n || p.length < 10) return alert("Valid Name and 10-digit Phone are required.");
+        const nameInput = document.getElementById('cust-name').value;
+        const phoneInput = document.getElementById('cust-phone').value;
+        
+        if(!nameInput || phoneInput.length < 10) return alert("Valid Name and 10-digit Phone are required.");
 
         const btn = document.getElementById('confirm-btn');
         btn.innerText = "PROCESSING..."; btn.disabled = true;
@@ -588,10 +589,12 @@
         let itemsArr = [];
         for(let k in cart) { itemsArr.push(`${cart[k].name}(x${cart[k].qty})`); }
 
+        // We send both 'name' and 'customerName' to ensure Google Sheets captures it regardless of its code
         const orderData = {
             hotel: "Hotel Pushkar",
-            customerName: n,
-            phone: p,
+            name: nameInput, 
+            customerName: nameInput,
+            phone: phoneInput,
             items: itemsArr.join(", "),
             total: document.getElementById('grand-total').innerText,
             location: gpsLink || "No Location",
@@ -600,9 +603,13 @@
         };
 
         try {
+            // 1. To Firebase (Dashboard)
             await addDoc(collection(db, "orders"), orderData);
+
+            // 2. To Google Sheets (Records)
             const sheetData = {...orderData, timestamp: new Date().toLocaleString()};
             fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(sheetData), mode: 'no-cors' });
+
             document.getElementById('success-screen').style.display = "flex";
         } catch(e) { 
             alert("Error sending order."); 
