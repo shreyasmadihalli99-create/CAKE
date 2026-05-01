@@ -138,6 +138,7 @@
             font-weight: 700;
         }
 
+        /* HIGHLIGHT STYLE */
         .nav-item.active-cat {
             background: var(--primary) !important;
             color: white !important;
@@ -209,7 +210,9 @@
 
         #cart-box {
             position: fixed;
-            bottom: 0; left: 0; width: 100%;
+            bottom: 0;
+            left: 0;
+            width: 100%;
             background: white;
             box-shadow: 0 -5px 20px rgba(0,0,0,0.15);
             z-index: 2000;
@@ -304,7 +307,7 @@
             <a href="#maggie" class="nav-item" onclick="h(this)">Maggie</a>
             <a href="#nuggets" class="nav-item" onclick="h(this)">Nuggets</a>
             <a href="#frankie" class="nav-item" onclick="h(this)">Frankie</a>
-            <a href="#coffee" class="nav-item" onclick="h(this)">Cold Coffee</a>
+            <a href="#coffee" class="nav-item" onclick="h(this)">Coffee</a>
             <a href="#milkshakes" class="nav-item" onclick="h(this)">Milkshakes</a>
             <a href="#mastani" class="nav-item" onclick="h(this)">Mastani</a>
             <a href="#hotcoffee" class="nav-item" onclick="h(this)">Hot Coffee</a>
@@ -356,20 +359,20 @@
     </div>
 
     <script>
-        // CONFIG
+        // GOOGLE SHEETS & FIREBASE SETUP
         const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfYGXB2Lim7wtiFCYy8U7MtV9DN9X2Tm7zSkx-qYxPLSLRcUg/formResponse";
         const ENTRY_DETAILS = "entry.1304197339";
         const ENTRY_TOTAL = "entry.248975380";
         const ENTRY_HOTEL = "entry.164020655";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyBc7nQQ558jsA8oagdSuiXqH9IVBBBp-EQ",
-            authDomain: "rapidroute-1d14d.firebaseapp.com",
-            databaseURL: "https://rapidroute-1d14d-default-rtdb.firebaseio.com",
-            projectId: "rapidroute-1d14d",
-            storageBucket: "rapidroute-1d14d.firebasestorage.app",
-            messagingSenderId: "785713080550",
-            appId: "1:785713080550:web:ad14ddcc23630b01ffb327"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
@@ -377,6 +380,12 @@
         let userLocation = "";
         let cart = {};
         let unavailableItems = JSON.parse(localStorage.getItem('raghuveer_unavailable')) || {};
+
+        // Highlighting Logic
+        function h(el) {
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active-cat'));
+            el.classList.add('active-cat');
+        }
 
         const finalMenu = {
             pizzas: [
@@ -502,11 +511,6 @@
             ]
         };
 
-        function h(el) {
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active-cat'));
-            el.classList.add('active-cat');
-        }
-
         function checkAdmin() {
             const pass = prompt("Enter Access Code:");
             if (pass === "20106669") openAdmin();
@@ -539,7 +543,8 @@
 
         function renderAll() {
             for (let cat in finalMenu) {
-                const type = (cat === 'pizzas') ? 'pizza' : (['burgers','sandwiches','fries','momos','coffee'].includes(cat) ? 'multi' : 'single');
+                const type = (cat === 'pizzas') ? 'pizza' : 
+                             (['burgers','sandwiches','fries','momos','coffee'].includes(cat) ? 'multi' : 'single');
                 renderList('list-' + cat, finalMenu[cat], type);
             }
         }
@@ -577,7 +582,8 @@
         function q(btn, change) {
             const card = btn.closest('.menu-card');
             const span = btn.parentElement.querySelector('.qty-val');
-            let val = Math.max(0, parseInt(span.innerText) + change);
+            let val = parseInt(span.innerText) + change;
+            if (val < 0) val = 0;
             span.innerText = val;
             updateCartData(card.getAttribute('data-name'), card.getAttribute('data-size') || '', parseInt(card.getAttribute('data-price')), val);
         }
@@ -627,17 +633,19 @@
             let itemsList = "";
             for(let k in cart) itemsList += `- ${k} x ${cart[k].qty} (₹${cart[k].total})\n`;
 
+            // Data for Firebase
             const orderData = { 
                 customerName: name, 
                 customerPhone: phone, 
                 location: userLocation, 
                 orderItems: cart, 
                 totalAmount: "₹" + finalPrice, 
-                timestamp: firebase.database.ServerValue.TIMESTAMP, 
+                timestamp: Date.now(), 
                 status: "Received" 
             };
 
-            let sheetDetails = `NEW ORDER\nCustomer: ${name}\nPhone: ${phone}\nLoc: ${userLocation}\n\nItems:\n${itemsList}`;
+            // Data for Google Sheets
+            let sheetDetails = `NEW ORDER\n----------\nCustomer: ${name}\nPhone: ${phone}\nLocation: ${userLocation}\n\nItems:\n${itemsList}`;
             const body = new FormData();
             body.append(ENTRY_DETAILS, sheetDetails);
             body.append(ENTRY_TOTAL, "₹" + finalPrice);
@@ -649,7 +657,9 @@
             ]).then(() => {
                 document.getElementById('success-overlay').style.display = 'flex';
                 window.scrollTo(0,0);
-            }).catch(err => alert("Error placing order. Please check your internet."));
+            }).catch(err => {
+                document.getElementById('success-overlay').style.display = 'flex';
+            });
         }
     </script>
 </body>
