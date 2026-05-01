@@ -2,620 +2,660 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hotel Pushkar - Premium Menu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Raghuveer Café | Official Menu</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
     <style>
         :root {
-            --primary: #e5990d; --accent: #ff9800; --bg: #fffbf5;
-            --text: #333; --white: #ffffff; --gray: #f4f4f4;
-            --success: #27ae60; --danger: #e74c3c;
+            --primary: #e67e22;
+            --dark: #2d3436;
+            --light: #f8f9fa;
+            --danger: #e74c3c;
+            --success: #27ae60;
         }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; }
-        
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            background-color: var(--light);
+            color: var(--dark);
+            scroll-behavior: smooth;
+        }
+
         #admin-star {
-            position: fixed; bottom: 20px; right: 20px; z-index: 9999;
-            font-size: 20px; opacity: 0.05; background: white;
-            width: 45px; height: 45px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            font-size: 24px;
+            cursor: pointer;
+            opacity: 0.2;
+            background: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         #admin-panel {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: white; z-index: 10000; padding: 20px; overflow-y: auto; box-sizing: border-box;
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: white;
+            z-index: 10000;
+            padding: 20px;
+            overflow-y: auto;
         }
 
-        #hero-page {
-            height: 100vh; width: 100%;
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=1500&q=80');
-            background-size: cover; background-position: center;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            text-align: center; color: white; position: fixed; top: 0; left: 0; z-index: 3000;
-            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        #hero-page.hidden { transform: translateY(-100%); }
-
-        .explore-btn {
-            margin-top: 25px; background: var(--accent); color: white;
-            padding: 15px 45px; font-size: 1.3rem; font-weight: bold;
-            border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
         }
 
-        #menu-page { display: none; max-width: 900px; margin: 0 auto; padding-bottom: 450px; }
+        .admin-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .status-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            min-width: 70px;
+        }
+
+        .btn-on { background: var(--success); color: white; }
+        .btn-off { background: var(--danger); color: white; }
+
+        #landing-page {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.7)), 
+                        url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800');
+            background-size: cover;
+            background-position: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .cafe-title { color: white; font-size: 2.8rem; margin: 0; font-weight: 800; }
         
-        .tabs-container { 
-            position: sticky; top: 0; background: white; display: flex; 
-            overflow-x: auto; padding: 15px; gap: 12px; z-index: 1000; 
-            box-shadow: 0 2px 15px rgba(0,0,0,0.1); scrollbar-width: none; 
+        .enter-btn {
+            margin-top: 25px;
+            background: var(--primary);
+            color: white;
+            padding: 18px 60px;
+            border-radius: 50px;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
         }
-        .tabs-container::-webkit-scrollbar { display: none; }
+
+        #menu-container { display: none; padding-bottom: 350px; }
+
+        .category-nav {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: white;
+            display: flex;
+            overflow-x: auto;
+            padding: 12px 8px;
+            gap: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .nav-item {
+            padding: 8px 16px;
+            background: #eee;
+            border-radius: 20px;
+            white-space: nowrap;
+            font-size: 0.8rem;
+            text-decoration: none;
+            color: #555;
+            font-weight: 700;
+        }
+
+        .nav-item.active-cat {
+            background: var(--primary) !important;
+            color: white !important;
+        }
+
+        .section-header {
+            padding: 15px;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--primary);
+            background: white;
+            border-bottom: 1px solid #eee;
+            margin-top: 10px;
+        }
+
+        .menu-card {
+            background: white;
+            margin-bottom: 1px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .item-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; display: block; }
         
-        .tab-btn { 
-            background: var(--gray); border: none; padding: 12px 25px; 
-            border-radius: 30px; white-space: nowrap; font-weight: 600; cursor: pointer; 
-            transition: 0.3s;
+        .size-group {
+            display: flex;
+            background: #f1f1f1;
+            border-radius: 6px;
+            padding: 2px;
+            width: fit-content;
         }
-        .tab-btn.active { background: var(--primary); color: white; transform: scale(1.05); }
+        .size-pill {
+            padding: 4px 10px;
+            font-size: 0.7rem;
+            border: none;
+            background: none;
+            border-radius: 4px;
+            font-weight: 700;
+            color: #666;
+            cursor: pointer;
+        }
+        .size-pill.active { background: white; color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
-        .category-header { padding: 20px 15px 10px; font-size: 1.5rem; color: var(--primary); border-bottom: 2px solid var(--accent); margin: 10px 15px; }
-
-        .menu-item { 
-            background: white; padding: 18px; margin: 12px 15px; 
-            border-radius: 15px; box-shadow: 0 3px 10px rgba(0,0,0,0.08); 
+        .price-text { font-weight: 800; font-size: 1.1rem; color: #000; display: block; }
+        
+        .qty-box {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 5px;
         }
         
-        .item-main { display: flex; justify-content: space-between; align-items: center; }
-        .item-name { font-weight: 700; font-size: 1.05rem; }
-        .item-price { color: var(--primary); font-weight: 800; }
-
-        .size-selector { display: flex; gap: 8px; margin-top: 12px; }
-        .size-btn { 
-            flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 8px; 
-            background: #fff; font-size: 0.8rem; cursor: pointer; font-weight: 600;
-        }
-        .size-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-
-        .qty-controls { display: flex; align-items: center; gap: 12px; margin-top: 10px; justify-content: flex-end; }
-        .qty-btn { background: var(--primary); color: white; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-weight: bold; font-size: 1.2rem; }
-
-        .cart-popup {
-            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%);
-            width: 100%; max-width: 550px; background: white; border-top-left-radius: 30px; border-top-right-radius: 30px;
-            padding: 25px; transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            z-index: 4000; box-sizing: border-box; box-shadow: 0 -10px 30px rgba(0,0,0,0.2);
-        }
-        .cart-popup.active { transform: translateX(-50%) translateY(0); }
-
-        .delivery-input { 
-            width: 100%; padding: 14px; margin-bottom: 12px; border: 2px solid #f0f0f0; 
-            border-radius: 12px; outline: none; box-sizing: border-box; font-size: 1rem;
-        }
-        .loc-btn { 
-            background: #2196F3; color: white; border: none; padding: 15px; 
-            width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; 
-            margin-bottom: 15px; font-size: 1rem;
-        }
-        .confirm-btn { 
-            background: #2e7d32; color: white; border: none; padding: 18px; 
-            width: 100%; border-radius: 15px; font-weight: 900; font-size: 1.2rem; 
-            display: none; cursor: pointer; text-transform: uppercase;
+        .btn-circle {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 1.5px solid var(--primary);
+            background: white;
+            color: var(--primary);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
         }
 
-        #success-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        #cart-box {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.15);
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            padding: 15px;
+        }
+
+        .details-input {
+            width: 100%; padding: 10px; margin-bottom: 8px;
+            border: 1px solid #ddd; border-radius: 8px; font-size: 0.9rem;
+        }
+
+        .loc-btn {
+            background: #3498db; color: white; border: none; padding: 12px;
+            border-radius: 8px; font-weight: 700; margin-bottom: 10px; width: 100%;
+            cursor: pointer;
+        }
+
+        #cart-items-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            max-height: 150px;
+        }
+
+        .cart-row { display: flex; justify-content: space-between; padding: 4px 0; }
+        .fee-row { display: flex; justify-content: space-between; padding: 2px 0; font-size: 0.75rem; color: #777; }
+
+        .order-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 1rem;
+            display: none;
+            cursor: pointer;
+        }
+
+        #success-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: white;
+            z-index: 5000;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
     </style>
 </head>
 <body>
 
-    <div id="admin-star" onclick="openAdmin()">★</div>
+    <div id="admin-star" onclick="checkAdmin()">★</div>
 
     <div id="admin-panel">
-        <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:15px; border-bottom: 1px solid #ddd;">
-            <h2 style="margin:0;">Pushkar Admin Panel</h2>
-            <button onclick="document.getElementById('admin-panel').style.display='none'" style="padding:10px 20px; background:#333; color:white; border:none; border-radius:8px;">EXIT</button>
+        <div class="admin-header">
+            <h2 style="margin:0; color:var(--primary)">Inventory Control</h2>
+            <button onclick="closeAdmin()" style="padding:10px; border-radius:8px; border:none; background:#333; color:white;">CLOSE</button>
         </div>
-        <div id="admin-list"></div>
+        <div id="admin-controls-list"></div>
     </div>
 
-    <div id="success-screen">
-        <div style="background: #e8f5e9; width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-            <span style="color: #2e7d32; font-size: 3rem;">✔</span>
-        </div>
-        <h2 style="margin:0;">ORDER SENT!</h2>
-        <p style="color:#666;">Hotel Pushkar is checking your order.</p>
-        <button class="explore-btn" onclick="location.reload()">New Order</button>
+    <div id="success-overlay">
+        <h2 style="color: #27ae60;">✔ Order Received!</h2>
+        <p>Your meal is being prepared. Thank you!</p>
+        <button class="enter-btn" onclick="location.reload()">New Order</button>
     </div>
 
-    <section id="hero-page">
-        <h1 style="font-size: 3rem; margin: 0; letter-spacing: 2px;">HOTEL PUSHKAR</h1>
-        <p style="font-size: 1.2rem; margin-top: 10px; opacity: 0.9;">"Cooked With Passion, Served By Soul!"</p>
-        <div style="height:2px; width:60px; background:var(--accent); margin: 20px 0;"></div>
-        <p style="font-size: 1rem;">Pure Veg Family Restaurant | Hukkeri</p>
-        <button class="explore-btn" onclick="openMenu()">View Full Menu</button>
-    </section>
+    <div id="landing-page">
+        <h1 class="cafe-title">Raghuveer Cafe</h1>
+        <p style="color:white">Hot & Fresh delivered to your door</p>
+        <button class="enter-btn" onclick="openMenu()">View Menu</button>
+    </div>
 
-    <main id="menu-page">
-        <div class="tabs-container" id="tabs"></div>
-        <div style="padding:15px;"><img id="cat-banner" style="width:100%; height:220px; object-fit:cover; border-radius:20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);" src=""></div>
-        
-        <h2 id="cat-title" class="category-header"></h2>
-        <div id="items-container"></div>
-
-        <div class="cart-popup" id="cart-popup">
-            <div style="font-weight:bold; margin-bottom:15px; font-size: 1.1rem; border-bottom: 1px solid #eee; padding-bottom: 10px;">Finalize Your Order</div>
-            
-            <input type="text" id="cust-name" class="delivery-input" placeholder="Your Full Name">
-            <input type="tel" id="cust-phone" class="delivery-input" placeholder="10-Digit Mobile Number" maxlength="10">
-            
-            <button class="loc-btn" id="loc-btn" onclick="getGPS()">📍 Tap to Share Delivery Location</button>
-            
-            <div id="cart-summary" style="max-height: 120px; overflow-y: auto; font-size: 0.95rem; margin-bottom: 15px; padding: 10px; background: #fafafa; border-radius: 10px;"></div>
-            
-            <div style="border-top: 1px dashed #ccc; padding: 10px 0; font-size: 0.9rem; color: #444; font-weight: 600;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>Items Total</span><span id="subtotal-val">₹0</span></div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>GST (5%)</span><span id="gst-val">₹0</span></div>
-                <div style="display:flex; justify-content:space-between;"><span>Delivery Charge</span><span id="delivery-val">₹0</span></div>
-            </div>
-
-            <div style="display:flex; justify-content:space-between; font-weight:900; color:var(--primary); font-size:1.5rem; margin-bottom: 15px;">
-                <span>GRAND TOTAL</span><span>₹<span id="grand-total">0</span></span>
-            </div>
-            
-            <button id="confirm-btn" class="confirm-btn" onclick="submitOrder()">Place Order Now</button>
+    <div id="menu-container">
+        <div class="category-nav">
+            <a href="#pizzas" class="nav-item active-cat" onclick="h(this)">Pizzas</a>
+            <a href="#burgers" class="nav-item" onclick="h(this)">Burgers</a>
+            <a href="#sandwiches" class="nav-item" onclick="h(this)">Sandwiches</a>
+            <a href="#fries" class="nav-item" onclick="h(this)">Fries</a>
+            <a href="#momos" class="nav-item" onclick="h(this)">Momos</a>
+            <a href="#pasta" class="nav-item" onclick="h(this)">Pasta</a>
+            <a href="#maggie" class="nav-item" onclick="h(this)">Maggie</a>
+            <a href="#nuggets" class="nav-item" onclick="h(this)">Nuggets</a>
+            <a href="#frankie" class="nav-item" onclick="h(this)">Frankie</a>
+            <a href="#coffee" class="nav-item" onclick="h(this)">Coffee</a>
+            <a href="#milkshakes" class="nav-item" onclick="h(this)">Milkshakes</a>
+            <a href="#mastani" class="nav-item" onclick="h(this)">Mastani</a>
+            <a href="#hotcoffee" class="nav-item" onclick="h(this)">Hot Coffee</a>
+            <a href="#cadb" class="nav-item" onclick="h(this)">Cad-B</a>
+            <a href="#mocktails" class="nav-item" onclick="h(this)">Mocktails</a>
+            <a href="#combos" class="nav-item" onclick="h(this)">Combos</a>
         </div>
-    </main>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        <section id="pizzas"><div class="section-header">Pizza Selection</div><div id="list-pizzas"></div></section>
+        <section id="burgers"><div class="section-header">Burger Varieties</div><div id="list-burgers"></div></section>
+        <section id="sandwiches"><div class="section-header">Grill Sandwiches</div><div id="list-sandwiches"></div></section>
+        <section id="fries"><div class="section-header">French Fries</div><div id="list-fries"></div></section>
+        <section id="momos"><div class="section-header">Momos</div><div id="list-momos"></div></section>
+        <section id="pasta"><div class="section-header">Pasta</div><div id="list-pasta"></div></section>
+        <section id="maggie"><div class="section-header">Maggie</div><div id="list-maggie"></div></section>
+        <section id="nuggets"><div class="section-header">Nuggets</div><div id="list-nuggets"></div></section>
+        <section id="frankie"><div class="section-header">Frankie</div><div id="list-frankie"></div></section>
+        <section id="coffee"><div class="section-header">Cold Coffee</div><div id="list-coffee"></div></section>
+        <section id="milkshakes"><div class="section-header">Milkshakes</div><div id="list-milkshakes"></div></section>
+        <section id="mastani"><div class="section-header">Mastani</div><div id="list-mastani"></div></section>
+        <section id="hotcoffee"><div class="section-header">Hot Coffee</div><div id="list-hotcoffee"></div></section>
+        <section id="cadb"><div class="section-header">Cad-B</div><div id="list-cadb"></div></section>
+        <section id="mocktails"><div class="section-header">Mocktails</div><div id="list-mocktails"></div></section>
+        <section id="combos"><div class="section-header">Value Combos</div><div id="list-combos"></div></section>
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyBc7nQQ558jsA8oagdSuiXqH9IVBBBp-EQ",
-        authDomain: "rapidroute-1d14d.firebaseapp.com",
-        projectId: "rapidroute-1d14d",
-        storageBucket: "rapidroute-1d14d.firebasestorage.app",
-        messagingSenderId: "785713080550",
-        appId: "1:785713080550:web:ad14ddcc23630b01ffb327"
-    };
+        <footer style="padding: 40px 20px; text-align: center; color: #888; font-size: 0.8rem;">
+            <p><strong>Raghuveer Cafe</strong></p>
+            <p>Packing: ₹10 per item<br>Delivery: ≤₹100 (₹15) | >₹100 (15%)</p>
+        </footer>
+    </div>
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    <div id="cart-box">
+        <div style="font-weight: 800; margin-bottom: 8px; color: var(--primary);">Delivery Information</div>
+        <input type="text" id="cust-name" class="details-input" placeholder="Enter Full Name">
+        <input type="tel" id="cust-phone" class="details-input" placeholder="10-Digit Mobile" maxlength="10">
+        <button id="loc-btn" class="loc-btn" onclick="getLocation()">📍 Share Live Location</button>
+        <div id="cart-items-list"></div>
+        <div id="fees-container" style="border-top: 1px dashed #ccc; padding-top: 5px; margin-bottom: 10px;">
+            <div class="fee-row"><span>Packing Charge (₹10/item)</span><span id="pack-total">₹0</span></div>
+            <div class="fee-row"><span id="delivery-label">Delivery Fee</span><span id="delivery-total">₹0</span></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <span id="cart-total-qty" style="font-size: 0.8rem; color: #666;">0 Items</span><br>
+                <span style="font-size: 1.2rem; font-weight: 800;">Total: ₹<span id="cart-total-price">0</span></span>
+            </div>
+            <button id="main-order-btn" class="order-btn" onclick="placeOrder()">Confirm & Pay</button>
+        </div>
+    </div>
 
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx2CcnPwPfW3lFfxQKf7x0-oarxx28K4K2INt8yFAl1d5hwdCwJpITJdFYJxrOuDwDm/exec";
-    let cart = {}; 
-    let gpsLink = "";
-    let disabledItems = JSON.parse(localStorage.getItem('pushkar_status')) || {};
+    <script>
+        const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfYGXB2Lim7wtiFCYy8U7MtV9DN9X2Tm7zSkx-qYxPLSLRcUg/formResponse";
+        const ENTRY_DETAILS = "entry.1304197339";
+        const ENTRY_TOTAL = "entry.248975380";
+        const ENTRY_HOTEL = "entry.164020655";
 
-    const menuData = {
-       "STARTERS": [
-            { id: "s1", name: "ROASTED PAPAD", price: 30 },
-            { id: "s2", name: "FRY PAPAD", price: 40 },
-            { id: "s3", name: "MASALA PAPAD", price: 50 },
-            { id: "s4", name: "FINGER-CHIPS", price: 120 },
-            { id: "s5", name: "GOBI MANCHURIAN", price: 140 },
-            { id: "s6", name: "VEG 65", price: 140 },
-            { id: "s7", name: "VEG CRISPY", price: 170 },
-            { id: "s8", name: "VEG MANCHURIAN", price: 170 },
-            { id: "s9", name: "LEMON GOBI DRY", price: 180 },
-            { id: "s10", name: "PANEER MANCHURIAN", price: 190 },
-            { id: "s11", name: "PANEER 65", price: 190 },
-            { id: "s12", name: "PANEER MANCHURIAN GRAVY", price: 190 },
-            { id: "s13", name: "PANEER CRISPY", price: 190 },
-            { id: "s14", name: "PANEER HOT PAN", price: 190 },
-            { id: "s15", name: "PANEER PAKODA", price: 190 },
-            { id: "s16", name: "PANEER ROASTED", price: 190 },
-            { id: "s17", name: "PANEER CHILLY DRY", price: 200 },
-            { id: "s18", name: "PANEER CHILLY GRAVY", price: 200 },
-            { id: "s19", name: "PANEER GREEN CHILLY", price: 240 },
-            { id: "s20", name: "PANEER DRAGON", price: 230 },
-            { id: "s21", name: "PANEER SAUTE", price: 190 },
-            { id: "s22", name: "BABY CORN CHILLY", price: 190 },
-            { id: "s23", name: "BABY CORN CRISPY", price: 190 },
-            { id: "s24", name: "BABY CORN MANCHURIAN", price: 200 },
-            { id: "s25", name: "GOBI SCHEZWAN CHILLY", price: 190 },
-            { id: "s26", name: "HONEY CHILLY POTATO", price: 190 },
-            { id: "s27", name: "MUSHROOM MANCHURIAN", price: 190 },
-            { id: "s28", name: "MUSHROOM PEPPER DRY", price: 190 },
-            { id: "s29", name: "MUSHROOM 65", price: 180 },
-            { id: "s30", name: "ONION PAKODA", price: 180 },
-            { id: "s31", name: "PALAK PAKODA", price: 190 },
-            { id: "s32", name: "MIX PAKODA", price: 160 },
-            { id: "s33", name: "POTATO MANCHURI", price: 160 },
-            { id: "s34", name: "SPRING POTATO", price: 100 }
-        ],
-        "SOUPS": [
-            { id: "sp1", name: "TOMATO SOUP", prices: { "Half": 50, "Full": 80 } },
-            { id: "sp2", name: "VEG CLEAR SOUP", price: 90 },
-            { id: "sp3", name: "VEG MANCHOW SOUP", prices: { "Half": 50, "Full": 80 } },
-            { id: "sp4", name: "CREAM OF MUSHROOM", prices: { "Half": 60, "Full": 90 } },
-            { id: "sp5", name: "CREAM OF PALAK", prices: { "Half": 60, "Full": 90 } },
-            { id: "sp6", name: "CREAM OF VEG SOUP", prices: { "Half": 60, "Full": 90 } },
-            { id: "sp7", name: "VEG SWEET CORN SOUP", prices: { "Half": 60, "Full": 90 } },
-            { id: "sp8", name: "LEMON CORIANDER SOUP", prices: { "Half": 60, "Full": 90 } }
-        ],
-        "SALADS": [
-            { id: "sl1", name: "GREEN SALAD", price: 70 },
-            { id: "sl2", name: "CUCUMBER SALAD", price: 70 },
-            { id: "sl3", name: "TOMATO SALAD", price: 60 }
-        ],
-        "NOODLES": [
-            { id: "n1", name: "VEG HAKKA NOODLES", price: 140 },
-            { id: "n2", name: "SCHEZWAN NOODLES", price: 170 },
-            { id: "n3", name: "HONGKONG NOODLES", price: 180 }
-        ],
-        "CURD": [
-            { id: "c1", name: "BUTTER MILK MASALA", prices: { "Half": 40, "Full": 60 } },
-            { id: "c2", name: "BUTTER MILK PLAIN", prices: { "Half": 30, "Full": 50 } },
-            { id: "c3", name: "SWEET LASSI", price: 60 },
-            { id: "c4", name: "CURD", price: 20 },
-            { id: "c5", name: "CURD VATI", price: 20 }
-        ],
-        "KEBABS": [
-            { id: "k1", name: "PANEER TIKKA DRY", price: 210 },
-            { id: "k2", name: "MUSHROOM TIKKA DRY", price: 210 },
-            { id: "k3", name: "VEG HARA-BHARA KEBAB", price: 210 },
-            { id: "k4", name: "PANEER PAHADI KEBAB", price: 220 },
-            { id: "k5", name: "PANEER BANJARA KEBAB", price: 220 },
-            { id: "k6", name: "PANEER ANGARA KEBAB", price: 230 },
-            { id: "k7", name: "ALOO TIKKA KEBAB", price: 180 }
-        ],
-        "KAJU": [
-            { id: "kj1", name: "KAJU MASALA", price: 220 },
-            { id: "kj2", name: "KAJU CURRY", price: 220 },
-            { id: "kj3", name: "KAJU KADHAI", price: 220 },
-            { id: "kj4", name: "KAJU KOLHAPURI", price: 220 },
-            { id: "kj5", name: "KAJU PANEER MASALA", price: 230 },
-            { id: "kj6", name: "KAJU PANEER KASTHURI", price: 240 },
-            { id: "kj7", name: "KAJU PANEERI TOOFANI", price: 240 }
-        ],
-        "SPECIAL DISHES": [
-            { id: "sd1", name: "PANEER LABABDAR", price: 250 },
-            { id: "sd2", name: "PANEER MAKHMALI", price: 260 },
-            { id: "sd3", name: "PANEER DIGARI", price: 240 },
-            { id: "sd4", name: "VEG TOOFANI", price: 220 },
-            { id: "sd5", name: "VEG RANGEELA", price: 230 },
-            { id: "sd6", name: "VEG KHAZANA", price: 230 },
-            { id: "sd7", name: "VEG ANGETI", price: 240 },
-            { id: "sd8", name: "VEG CHTPATA", price: 290 },
-            { id: "sd9", name: "PUSHKAR SPECIAL VEG", price: 290 }
-        ],
-        "VEG-DISHES": [
-            { id: "vd1", name: "MIX VEG", price: 170 },
-            { id: "vd2", name: "VEG KOLHAPURI", price: 180 },
-            { id: "vd3", name: "VEG KADHAI", price: 190 },
-            { id: "vd4", name: "VEG TAWA", price: 190 },
-            { id: "vd5", name: "VEG KEEMA", price: 190 },
-            { id: "vd6", name: "VEG MARATAHA", price: 200 },
-            { id: "vd7", name: "VEG BHUNA MASALA", price: 220 },
-            { id: "vd8", name: "VEG HANDI", price: 200 },
-            { id: "vd9", name: "VEG MAHARAJA", price: 200 },
-            { id: "vd10", name: "VEG PATIYALA", price: 220 },
-            { id: "vd11", name: "VEG KOFTA CURRY", price: 220 },
-            { id: "vd12", name: "VEG CHIILI-MILLI", price: 230 },
-            { id: "vd13", name: "VEG MUMTAZ", price: 230 },
-            { id: "vd14", name: "VEG JAIPURI MASALA", price: 230 },
-            { id: "vd15", name: "VEG KASTHURI", price: 230 },
-            { id: "vd16", name: "VEG HYDERABADI", price: 230 },
-            { id: "vd17", name: "VEG DEEWANI HANDI", price: 230 },
-            { id: "vd18", name: "VEG MALWANI", price: 230 },
-            { id: "vd19", name: "VEG AFGHANI", price: 220 }
-        ],
-        "PANEER": [
-            { id: "p1", name: "PANEER MASALA", price: 200 },
-            { id: "p2", name: "PANEER MATAR", price: 210 },
-            { id: "p3", name: "PANEER KOLHAPURI", price: 210 },
-            { id: "p4", name: "PANEER KADAI", price: 210 },
-            { id: "p5", name: "PANEER TAWA", price: 210 },
-            { id: "p6", name: "PANEER HANDI", price: 220 },
-            { id: "p7", name: "PANEER RAJWADI", price: 220 },
-            { id: "p8", name: "PANEER CHINGARI", price: 220 },
-            { id: "p9", name: "PANEER TIKKA MASALA", price: 220 },
-            { id: "p10", name: "PANEER BURJI", price: 220 },
-            { id: "p11", name: "PANEER KASTHURI", price: 230 },
-            { id: "p12", name: "PANEER LAJAWAB", price: 230 },
-            { id: "p13", name: "PANEER TOOFANI", price: 230 }
-        ],
-        "SWEET DISHES": [
-            { id: "sw1", name: "PANEER BUTTER MASALA", price: 230 },
-            { id: "sw2", name: "KAJU MAKHANWALA", price: 230 },
-            { id: "sw3", name: "PANEER MAKHANWALA", price: 230 },
-            { id: "sw4", name: "KAJU BUTTER MASALA", price: 230 },
-            { id: "sw5", name: "VEG MAKHANWALA", price: 210 },
-            { id: "sw6", name: "VEG JAIPURI", price: 210 },
-            { id: "sw7", name: "METHI MATAR MALAI", price: 230 }
-        ],
-        "DAAL": [
-            { id: "d1", name: "PLAIN DAAL", price: 100 },
-            { id: "d2", name: "DAAL FRY", price: 120 },
-            { id: "d3", name: "DAAL TADKA", price: 130 },
-            { id: "d4", name: "DAAL KOLHAPURI", price: 130 },
-            { id: "d5", name: "DAAL BUTTER FRY", price: 140 },
-            { id: "d6", name: "DAAL PALAK", price: 130 },
-            { id: "d7", name: "DAAL HYDERABADI", price: 140 }
-        ],
-        "MUSHROOM": [
-            { id: "ms1", name: "MUSHROOM MASALA", price: 220 },
-            { id: "ms2", name: "MUSHROOM KADHAI", price: 220 },
-            { id: "ms3", name: "MUSHROOM HANDI", price: 230 },
-            { id: "ms4", name: "MUSHROOM BABY-CORN", price: 230 },
-            { id: "ms5", name: "MUSHROOM PANEER MASALA", price: 240 },
-            { id: "ms6", name: "MUSHROOM KAJU MASALA", price: 240 }
-        ],
-        "PALAK": [
-            { id: "pl1", name: "PLAIN PALAK", price: 160 },
-            { id: "pl2", name: "LEHSUNI PALAK", price: 170 },
-            { id: "pl3", name: "PALAK PANEER", price: 200 },
-            { id: "pl4", name: "PALAK MATAR", price: 190 },
-            { id: "pl5", name: "ALOO PALAK", price: 190 }
-        ],
-        "INDIAN RICE": [
-            { id: "ir1", name: "STEAMED RICE", prices: { "Half": 70, "Full": 90 } },
-            { id: "ir2", name: "JEERA RICE", prices: { "Half": 90, "Full": 120 } },
-            { id: "ir3", name: "GHEE RICE", price: 160 },
-            { id: "ir4", name: "CURD RICE", price: 160 },
-            { id: "ir5", name: "MASALA RICE", price: 150 },
-            { id: "ir6", name: "VEG PULAO", price: 170 },
-            { id: "ir7", name: "VEG BIRYANI", price: 180 },
-            { id: "ir8", name: "VEG HYDERABADI BIRYANI", price: 190 },
-            { id: "ir9", name: "GREEN-PEAS PULAO", price: 180 },
-            { id: "ir10", name: "KAJU MATAR PULAO", price: 190 },
-            { id: "ir11", name: "PANEER MATAR PULAO", price: 190 },
-            { id: "ir12", name: "DAAL-KHICHDI", price: 160 },
-            { id: "ir13", name: "PALAK KHICHDI", price: 160 },
-            { id: "ir14", name: "KASHMIRI PULAO", price: 200 },
-            { id: "ir15", name: "PUSHKAR SPECIAL BIRYANI", price: 220 },
-            { id: "ir16", name: "KUSHKA RICE", price: 160 }
-        ],
-        "CHINESE RICE": [
-            { id: "cr1", name: "VEG FRIED RICE", price: 180 },
-            { id: "cr2", name: "KAJU FRIED RICE", price: 190 },
-            { id: "cr3", name: "MUSHROOM FRIED RICE", price: 190 },
-            { id: "cr4", name: "VEG SCHEZWAN RICE", price: 190 },
-            { id: "cr5", name: "TRIPLE SCHEZWAN RICE", price: 210 }
-        ],
-        "ROTI": [
-            { id: "rt1", name: "ROTI", price: 20 },
-            { id: "rt2", name: "BUTTER ROTI", price: 25 },
-            { id: "rt3", name: "KULCHA", price: 35 },
-            { id: "rt4", name: "BUTTER KULCHA", price: 40 },
-            { id: "rt5", name: "GARLIC KULCHA", price: 45 },
-            { id: "rt6", name: "BUTTER GARLIC KULCHA", price: 50 },
-            { id: "rt7", name: "NAAN", price: 45 },
-            { id: "rt8", name: "BUTTER NAAN", price: 50 },
-            { id: "rt9", name: "BUTTER GARLIC NAAN", price: 55 },
-            { id: "rt10", name: "BUTTER CHEESE GARLIC NAAN", price: 70 },
-            { id: "rt11", name: "CHEESE GARLIC NAAN", price: 65 },
-            { id: "rt12", name: "PAROTHA PLAIN", price: 50 },
-            { id: "rt13", name: "BUTTER PAROTHA", price: 55 },
-            { id: "rt14", name: "ALOO PAROTHA", price: 80 },
-            { id: "rt15", name: "PANEER PAROTHA", price: 90 },
-            { id: "rt16", name: "WHEAT ROTI", price: 25 },
-            { id: "rt17", name: "BUTTER WHEAT ROTI", price: 30 }
-        ],
-        "HOT BEVERAGES": [
-            { id: "hb1", name: "TEA", price: 20 },
-            { id: "hb2", name: "COFFEE", price: 30 },
-            { id: "hb3", name: "BLACK TEA", price: 15 }
-        ],
-        "COLD BEVERAGES": [
-            { id: "cb1", name: "FRESH LIME SODA", prices: { "Half": 30, "Full": 50 } }
-        ],
-        "VEG THALI": [
-            { id: "th1", name: "PUSHKAR SPECIAL THALI", price: 180 }
-        ]
-    };
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
 
-    const categoryImages = {
-        "STARTERS": "https://www.spiritofindiapattaya.com/wp-content/uploads/2023/01/Masala-Papad.jpg",
-        "SOUPS": "https://tse2.mm.bing.net/th/id/OIP.oRISYhUxwpTtPbD-ka6C2gHaEJ?pid=Api&P=0&h=180",
-        "SALADS": "https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=800&auto=format&fit=crop",
-        "NOODLES": "https://images.unsplash.com/photo-1585032226651-759b368d7246?q=80&w=800&auto=format&fit=crop",
-        "CURD": "https://www.indianhealthyrecipes.com/wp-content/uploads/2022/02/sweet-lassi-recipe.jpg",
-        "KEBABS": "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?q=80&w=800&auto=format&fit=crop",
-        "KAJU": "https://tse1.mm.bing.net/th/id/OIP.kI9U49XWpC6i3GZ8l_MshwHaEK?rs=1&pid=ImgDetMain",
-        "SPECIAL DISHES": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=800&q=80",
-        "VEG-DISHES": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop",
-        "PANEER": "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?q=80&w=800&auto=format&fit=crop",
-        "SWEET DISHES": "https://images.unsplash.com/photo-1601050690597-df056fb47091?q=80&w=800&auto=format&fit=crop",
-        "DAAL": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?q=80&w=800&auto=format&fit=crop",
-        "MUSHROOM": "https://images.unsplash.com/photo-1512058560366-cd24270083cd?q=80&w=800&auto=format&fit=crop",
-        "PALAK": "https://www.archanaskitchen.com/images/archanaskitchen/1-Author/Jyothi_Rajesh/Lehsuni_Palak.jpg",
-        "INDIAN RICE": "https://skydecklounge.in/wp-content/uploads/2022/01/Tandoori-Roti-Butter.jpg",
-        "CHINESE RICE": "https://images.unsplash.com/photo-1603133872878-684f208fb84b?q=80&w=800&auto=format&fit=crop",
-        "ROTI": "https://skydecklounge.in/wp-content/uploads/2022/01/Tandoori-Roti-Butter.jpg",
-        "HOT BEVERAGES": "https://www.indianhealthyrecipes.com/wp-content/uploads/2023/05/indian-masala-chai-tea.jpg",
-        "COLD BEVERAGES": "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?q=80&w=800&auto=format&fit=crop",
-        "VEG THALI": "https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?q=80&w=800&auto=format&fit=crop"
-    };
+        let userLocation = "";
+        let cart = {};
+        let unavailableItems = JSON.parse(localStorage.getItem('raghuveer_unavailable')) || {};
 
-    // --- LOGIC FUNCTIONS ---
-    window.openAdmin = () => {
-        if(prompt("Enter Admin PIN:") === "20106669") {
-            const list = document.getElementById('admin-list'); list.innerHTML = "";
+        function h(el) {
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active-cat'));
+            el.classList.add('active-cat');
+        }
+
+        const finalMenu = {
+            pizzas: [
+                { id: "pz1", name: "Veg Cheese Pizza", p: {S:120, M:140, B:240} },
+                { id: "pz2", name: "Sweet Corn Veg Cheese", p: {S:140, M:160, B:260} },
+                { id: "pz3", name: "Baby Corn Veg Cheese", p: {S:140, M:160, B:260} },
+                { id: "pz4", name: "Mushroom Veg Corn", p: {S:150, M:170, B:270} },
+                { id: "pz5", name: "Paneer Yummy Pizza", p: {S:160, M:180, B:280} },
+                { id: "pz6", name: "Chocolate Cheese Pizza", p: {S:140, M:160, B:260} },
+                { id: "pz7", name: "Mix Loaded Cheese Pizza", p: {S:160, M:190, B:290} },
+                { id: "pz8", name: "Jain Veg Cheese Pizza", p: {S:130, M:160, B:260} },
+                { id: "pz9", name: "Jain Cheese Burst Pizza", p: {S:180, M:210, B:310} },
+                { id: "pz10", name: "Yummy Cheese Burst Pizza", p: {S:180, M:210, B:310} },
+                { id: "pz11", name: "Italian Yummy Burst", p: {S:200, M:230, B:330} },
+                { id: "pz12", name: "Raghuveer Spl Tandoor Burst", p: {S:210, M:240, B:340} },
+                { id: "pz13", name: "Cheese Burst Punjabi Tadka", p: {S:230, M:260, B:360} },
+                { id: "pz14", name: "Raghuveer Spl Cheese Pizza", p: {S:200, M:230, B:330} },
+                { id: "pz15", name: "Dryfruit Raghuveer Spl Pizza", p: {S:220, M:250, B:350} }
+            ],
+            burgers: [
+                { id: "bg1", name: "Veg Aloo Tikki Burger", p: {Maida:60, Wheat:70} },
+                { id: "bg2", name: "Cheese Aloo Tikki Burger", p: {Maida:70, Wheat:80} },
+                { id: "bg3", name: "Raghuveer Spl Tikki Burger", p: {Maida:80, Wheat:90} },
+                { id: "bg4", name: "Veg Burger", p: {Maida:70, Wheat:80} },
+                { id: "bg5", name: "Veg Cheese Burger", p: {Maida:80, Wheat:90} },
+                { id: "bg6", name: "Raghuveer Special Burger", p: {Maida:90, Wheat:100} },
+                { id: "bg7", name: "Veg Cheese Tandoor Burger", p: {Maida:110, Wheat:120} },
+                { id: "bg8", name: "Chilli Potato Burger", p: {Maida:70, Wheat:80} },
+                { id: "bg9", name: "Chilli Potato Cheese Burger", p: {Maida:80, Wheat:90} },
+                { id: "bg10", name: "Raghuveer Special Chilli Burger", p: {Maida:90, Wheat:100} },
+                { id: "bg11", name: "Raghuveer Spl Chilli Tandoor", p: {Maida:110, Wheat:120} },
+                { id: "bg12", name: "Paneer Cheese Burger", p: {Maida:140, Wheat:150} },
+                { id: "bg13", name: "Raghuveer Special Paneer Burger", p: {Maida:150, Wheat:160} },
+                { id: "bg14", name: "Raghuveer Paneer Tandoor Burger", p: {Maida:160, Wheat:170} }
+            ],
+            sandwiches: [
+                { id: "sw1", name: "Veg Sandwich", p: {Maida:50, Wheat:60} },
+                { id: "sw2", name: "Veg Cheese Sandwich", p: {Maida:60, Wheat:70} },
+                { id: "sw3", name: "Veg Cheese Grill Sandwich", p: {Maida:70, Wheat:80} },
+                { id: "sw4", name: "Paneer Cheese Grill Sandwich", p: {Maida:90, Wheat:100} },
+                { id: "sw5", name: "Sweet Corn Cheese Grill", p: {Maida:80, Wheat:90} },
+                { id: "sw6", name: "Raghuveer Spl Cheese Grill", p: {Maida:100, Wheat:110} }
+            ],
+            fries: [
+                { id: "fr1", name: "Salted French Fries", p: {Small:60, Big:90} },
+                { id: "fr2", name: "Peri-Peri Fries", p: {Small:70, Big:100} },
+                { id: "fr3", name: "Liquid Cheese Fries", p: {Small:90, Big:120} },
+                { id: "fr4", name: "Double Cheese Fries", p: {Small:100, Big:130} },
+                { id: "fr5", name: "Raghuveer Special Fries", p: {Small:110, Big:140} },
+                { id: "fr6", name: "Masala French Fries", p: {Small:90, Big:120} },
+                { id: "fr7", name: "Masala Peri-Peri Fries", p: {Small:100, Big:130} },
+                { id: "fr8", name: "Liquid Cheese Masala Fries", p: {Small:110, Big:140} },
+                { id: "fr9", name: "Double Cheese Masala Fries", p: {Small:120, Big:150} },
+                { id: "fr10", name: "Raghuveer Spl Masala Fries", p: {Small:130, Big:160} }
+            ],
+            momos: [
+                { id: "mo1", name: "Mix Veg Momos", p: {Steam:100, Fry:110} },
+                { id: "mo2", name: "Paneer Momos", p: {Steam:110, Fry:120} },
+                { id: "mo3", name: "Cheese Corn Momos", p: {Steam:120, Fry:130} },
+                { id: "mo4", name: "Raghuveer Spl Momos", p: {Steam:140, Fry:150} }
+            ],
+            pasta: [
+                { id: "pa1", name: "White Pasta", p: 120 }, { id: "pa2", name: "White Cheese Pasta", p: 140 },
+                { id: "pa3", name: "Red Pasta", p: 130 }, { id: "pa4", name: "Red Cheese Pasta", p: 150 }
+            ],
+            maggie: [
+                { id: "mg1", name: "Regular Maggie", p: 70 }, { id: "mg2", name: "Masala Maggie", p: 80 },
+                { id: "mg3", name: "Vegetable Special Maggie", p: 90 }, { id: "mg4", name: "Cheese Maggie", p: 100 },
+                { id: "mg5", name: "Raghuveer Special Maggie", p: 110 }
+            ],
+            nuggets: [
+                { id: "nu1", name: "Veggie Fingers", p: 80 }, { id: "nu2", name: "Chilli-Garlic Bites", p: 80 },
+                { id: "nu3", name: "Cheese Corn Triangles", p: 100 }
+            ],
+            frankie: [
+                { id: "fn1", name: "Veg Frankie Roll", p: 100 }, { id: "fn2", name: "Veg Cheese Frankie Roll", p: 120 },
+                { id: "fn3", name: "Veg Cheese Tandoor Frankie", p: 130 }, { id: "fn4", name: "Raghuveer Spl Tandoor Frankie", p: 140 },
+                { id: "fn5", name: "Paneer Frankie Roll", p: 120 }, { id: "fn6", name: "Paneer Cheese Frankie Roll", p: 130 },
+                { id: "fn7", name: "Raghuveer Spl Paneer Frankie", p: 150 }
+            ],
+            coffee: [
+                { id: "cf1", name: "Regular Cold Coffee", p: {Glass:50, Jumbo:70} },
+                { id: "cf2", name: "Chocolate Cold Coffee", p: {Glass:60, Jumbo:80} },
+                { id: "cf3", name: "Ch. Cold Coffee + Icecream", p: {Glass:70, Jumbo:90} },
+                { id: "cf4", name: "Ch. Cold Coffee + Chocochips", p: {Glass:80, Jumbo:100} },
+                { id: "cf5", name: "Ch. Cold Coffee + Icecream + Chips", p: {Glass:100, Jumbo:120} }
+            ],
+            milkshakes: [
+                { id: "ms1", name: "Apple + Butterscotch", p: 70 }, { id: "ms2", name: "Apple + Icecream", p: 80 },
+                { id: "ms3", name: "Mango Milkshake", p: 80 }, { id: "ms4", name: "Sweet Strawberry", p: 80 },
+                { id: "ms5", name: "Crunchy Oreo Shake", p: 80 }, { id: "ms6", name: "Kitkat Milkshake", p: 90 },
+                { id: "ms7", name: "Vanilla Milkshake", p: 80 }, { id: "ms8", name: "Raghuveer Spl Mix Shake", p: 100 }
+            ],
+            mastani: [
+                { id: "mt1", name: "Mango Dryfruit Mastani", p: 100 }, { id: "mt2", name: "Butterscotch Dryfruit Mastani", p: 100 },
+                { id: "mt3", name: "Strawberry Dryfruit Mastani", p: 100 }, { id: "mt4", name: "Peshwai Mastani", p: 110 },
+                { id: "mt5", name: "Raghuveer Spl Mastani", p: 120 }
+            ],
+            hotcoffee: [
+                { id: "hc1", name: "Regular Hot Coffee", p: 30 }, { id: "hc2", name: "Couple Hot Coffee", p: 50 },
+                { id: "hc3", name: "Chocolate Hot Coffee", p: 40 }, { id: "hc4", name: "Couple Choc. Hot Coffee", p: 60 }
+            ],
+            cadb: [
+                { id: "cb1", name: "Chocolate Cad-B", p: 100 }, { id: "cb2", name: "Jumbo Chocolate Cad-B", p: 120 },
+                { id: "cb3", name: "Vanilla Cad-B", p: 100 }, { id: "cb4", name: "Mango Spl Cad-B", p: 110 }
+            ],
+            mocktails: [
+                { id: "mk1", name: "Watermelon Mocktail", p: 80 }, { id: "mk2", name: "Green Apple Mocktail", p: 80 },
+                { id: "mk3", name: "Blueberry Mocktail", p: 80 }, { id: "mk4", name: "Mojito Mint", p: 90 },
+                { id: "mk5", name: "Sprite/Coke/Thumps-up", p: 50 }
+            ],
+            combos: [
+                { id: "co1", name: "Regular Combo A (Pizza S+Coke)", p: 210 },
+                { id: "co2", name: "Regular Combo A (Veg Sandwich+Fries+Coffee)", p: 200 },
+                { id: "co3", name: "Regular Combo B (White Pasta+Fries+Coffee)", p: 260 },
+                { id: "co4", name: "Mini Combo (Veg Cheese Frankie+Fries+Coffee)", p: 270 },
+                { id: "co5", name: "Special Combo (Raghuveer Grill+Fries+Coffee)", p: 300 },
+                { id: "co6", name: "Nuggets Fries Combo (Nuggets+Fries+Coffee)", p: 250 },
+                { id: "co7", name: "Mini Combo A (Burger+Fries+Coffee)", p: 230 },
+                { id: "co8", name: "Special Combo A (Spl Burger+Spl Fries+Coke)", p: 310 },
+                { id: "co9", name: "Mini Combo B (Spl Burst Pizza S+Fries+Coffee)", p: 360 },
+                { id: "co10", name: "Special Combo B (Spl Pizza M+Fries+Coffee)", p: 450 }
+            ]
+        };
+
+        function checkAdmin() {
+            const pass = prompt("Enter Access Code:");
+            if (pass === "20106669") openAdmin();
+        }
+
+        function openAdmin() {
+            const list = document.getElementById('admin-controls-list');
+            list.innerHTML = "";
             document.getElementById('admin-panel').style.display = 'block';
-            for(let cat in menuData) {
-                list.innerHTML += `<div style="background:#f4f4f4; padding:10px; font-weight:bold; margin-top:10px;">${cat}</div>`;
-                menuData[cat].forEach(item => {
-                    const isOff = disabledItems[item.id];
-                    const btnId = `toggle-${item.id}`;
-                    list.innerHTML += `<div style="display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid #eee;">
-                        <span>${item.name}</span>
-                        <button id="${btnId}" style="background:${isOff?'#e74c3c':'#27ae60'}; color:white; border:none; padding:6px 15px; border-radius:5px;">${isOff?'HIDDEN':'ACTIVE'}</button>
-                    </div>`;
-                    setTimeout(() => {
-                        document.getElementById(btnId).onclick = () => toggleStatus(item.id, btnId);
-                    }, 0);
+            for(let cat in finalMenu) {
+                list.innerHTML += `<h3 style="background:#eee; padding:5px;">${cat.toUpperCase()}</h3>`;
+                finalMenu[cat].forEach(item => {
+                    const isOff = unavailableItems[item.id];
+                    list.innerHTML += `<div class="admin-item-row"><span>${item.name}</span><button class="status-btn ${isOff ? 'btn-off' : 'btn-on'}" onclick="toggleVisibility('${item.id}', this)">${isOff ? 'OFF' : 'ON'}</button></div>`;
                 });
             }
         }
-    };
 
-    function toggleStatus(id, btnId) {
-        const btn = document.getElementById(btnId);
-        if(disabledItems[id]) { 
-            delete disabledItems[id]; btn.innerText="ACTIVE"; btn.style.background="#27ae60"; 
-        } else { 
-            disabledItems[id]=true; btn.innerText="HIDDEN"; btn.style.background="#e74c3c"; 
+        function toggleVisibility(id, btn) {
+            if (unavailableItems[id]) delete unavailableItems[id];
+            else unavailableItems[id] = true;
+            localStorage.setItem('raghuveer_unavailable', JSON.stringify(unavailableItems));
+            btn.innerText = unavailableItems[id] ? "OFF" : "ON";
+            btn.className = `status-btn ${unavailableItems[id] ? 'btn-off' : 'btn-on'}`;
+            renderAll();
         }
-        localStorage.setItem('pushkar_status', JSON.stringify(disabledItems));
-    }
 
-    window.openMenu = () => {
-        document.getElementById('hero-page').classList.add('hidden');
-        setTimeout(() => {
-            document.getElementById('hero-page').style.display = 'none';
-            document.getElementById('menu-page').style.display = 'block';
-            renderTabs();
-        }, 800);
-    };
+        function closeAdmin() { document.getElementById('admin-panel').style.display = 'none'; }
+        function openMenu() { document.getElementById('landing-page').style.display = 'none'; document.getElementById('menu-container').style.display = 'block'; renderAll(); }
 
-    function renderTabs() {
-        const tabs = document.getElementById('tabs'); tabs.innerHTML = "";
-        Object.keys(menuData).forEach((cat, i) => {
-            const btn = document.createElement('button');
-            btn.className = "tab-btn" + (i===0?" active":""); btn.innerText = cat;
-            btn.onclick = (e) => {
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active'); renderItems(cat);
-            };
-            tabs.appendChild(btn);
-        });
-        renderItems(Object.keys(menuData)[0]);
-    }
-
-    function renderItems(cat) {
-        document.getElementById('cat-title').innerText = cat;
-        document.getElementById('cat-banner').src = categoryImages[cat];
-        const container = document.getElementById('items-container'); container.innerHTML = "";
-        
-        menuData[cat].forEach(item => {
-            if(disabledItems[item.id]) return;
-            const hasSizes = !!item.prices;
-            const defaultPrice = hasSizes ? item.prices["Full"] : item.price;
-            
-            let sizeButtons = "";
-            if(hasSizes) {
-                sizeButtons = `
-                    <div class="size-selector">
-                        <button class="size-btn" onclick="selectSize(this, '${item.id}', 'Half', ${item.prices['Half']})">HALF (₹${item.prices['Half']})</button>
-                        <button class="size-btn active" onclick="selectSize(this, '${item.id}', 'Full', ${item.prices['Full']})">FULL (₹${item.prices['Full']})</button>
-                    </div>
-                `;
+        function renderAll() {
+            for (let cat in finalMenu) {
+                const type = (cat === 'pizzas') ? 'pizza' : 
+                             (['burgers','sandwiches','fries','momos','coffee'].includes(cat) ? 'multi' : 'single');
+                renderList('list-' + cat, finalMenu[cat], type);
             }
-
-            container.innerHTML += `
-                <div class="menu-item" id="item-card-${item.id}" data-price="${defaultPrice}" data-size="${hasSizes ? 'Full' : ''}">
-                    <div class="item-main">
-                        <span class="item-name">${item.name}</span>
-                        <span class="item-price" id="price-view-${item.id}">₹${defaultPrice}</span>
-                    </div>
-                    ${sizeButtons}
-                    <div class="qty-controls">
-                        <button class="qty-btn" onclick="modifyQty('${item.id}', '${item.name}', -1)">-</button>
-                        <span id="qty-count-${item.id}" style="font-weight:bold; min-width:30px; text-align:center;">0</span>
-                        <button class="qty-btn" onclick="modifyQty('${item.id}', '${item.name}', 1)">+</button>
-                    </div>
-                </div>
-            `;
-        });
-    }
-
-    window.selectSize = (btn, id, sizeLabel, newPrice) => {
-        const card = document.getElementById(`item-card-${id}`);
-        card.setAttribute('data-size', sizeLabel);
-        card.setAttribute('data-price', newPrice);
-        card.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById(`price-view-${id}`).innerText = "₹" + newPrice;
-    };
-
-    window.modifyQty = (id, baseName, change) => {
-        const card = document.getElementById(`item-card-${id}`);
-        const size = card.getAttribute('data-size');
-        const price = parseInt(card.getAttribute('data-price'));
-        const cartKey = id + (size || ""); 
-
-        if(!cart[cartKey]) {
-            cart[cartKey] = { name: baseName + (size ? ` (${size})` : ""), price: price, qty: 0, originId: id };
         }
 
-        cart[cartKey].qty += change;
-        if(cart[cartKey].qty <= 0) delete cart[cartKey];
-
-        let totalQty = 0;
-        for(let k in cart) { if(cart[k].originId === id) totalQty += cart[k].qty; }
-        const el = document.getElementById(`qty-count-${id}`);
-        if(el) el.innerText = totalQty;
-
-        updateGlobalCart();
-    };
-
-    function updateGlobalCart() {
-        let subtotal = 0, count = 0, listHtml = "";
-        for(let key in cart) { 
-            count++; 
-            const cost = cart[key].qty * cart[key].price;
-            subtotal += cost; 
-            listHtml += `<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>${cart[key].name} x ${cart[key].qty}</span><span>₹${cost}</span></div>`; 
+        function renderList(id, list, type) {
+            const container = document.getElementById(id);
+            if(!container) return;
+            container.innerHTML = '';
+            list.forEach(item => {
+                if (unavailableItems[item.id]) return;
+                let controls = ''; let price = item.p; let activeSize = '';
+                if (type === 'pizza') {
+                    price = item.p.S; activeSize = 'S';
+                    controls = `<div class="size-group"><button class="size-pill active" onclick="upd(this, ${item.p.S}, 'S')">S</button><button class="size-pill" onclick="upd(this, ${item.p.M}, 'M')">M</button><button class="size-pill" onclick="upd(this, ${item.p.B}, 'B')">B</button></div>`;
+                } else if (type === 'multi') {
+                    const keys = Object.keys(item.p);
+                    price = item.p[keys[0]]; activeSize = keys[0];
+                    controls = `<div class="size-group">` + keys.map((k,i) => `<button class="size-pill ${i===0?'active':''}" onclick="upd(this, ${item.p[k]}, '${k}')">${k}</button>`).join('') + `</div>`;
+                }
+                container.innerHTML += `<div class="menu-card" data-name="${item.name}" data-size="${activeSize}" data-price="${price}"><div><span class="item-name">${item.name}</span>${controls}</div><div style="text-align:right"><span class="price-text">₹${price}</span><div class="qty-box"><button class="btn-circle" onclick="q(this,-1)">-</button><span class="qty-val">0</span><button class="btn-circle" onclick="q(this,1)">+</button></div></div></div>`;
+            });
         }
 
-        const gst = Math.round(subtotal * 0.05);
-        const taxedSubtotal = subtotal + gst;
-        const delCharge = subtotal === 0 ? 0 : ( taxedSubtotal < 100 ? 15 : Math.round(taxedSubtotal * 0.15) );
-
-        document.getElementById('cart-summary').innerHTML = listHtml || "Your cart is empty";
-        document.getElementById('subtotal-val').innerText = "₹" + subtotal;
-        document.getElementById('gst-val').innerText = "₹" + gst;
-        document.getElementById('delivery-val').innerText = "₹" + delCharge;
-        document.getElementById('grand-total').innerText = taxedSubtotal + delCharge;
-        document.getElementById('cart-popup').classList.toggle('active', count > 0);
-    }
-
-    window.getGPS = () => {
-        const btn = document.getElementById('loc-btn'); btn.innerText = "🛰️ ACCESSING GPS...";
-        navigator.geolocation.getCurrentPosition((p) => {
-            gpsLink = "https://www.google.com/maps?q=" + p.coords.latitude + "," + p.coords.longitude;
-            btn.style.display = "none"; document.getElementById('confirm-btn').style.display = "block";
-        }, () => { alert("Enable GPS to proceed."); btn.innerText = "📍 Tap to Share Delivery Location"; }, {enableHighAccuracy: true});
-    };
-
-    window.submitOrder = async () => {
-        const nameInput = document.getElementById('cust-name').value;
-        const phoneInput = document.getElementById('cust-phone').value;
-        
-        if(!nameInput || phoneInput.length < 10) return alert("Valid Name and 10-digit Phone are required.");
-
-        const btn = document.getElementById('confirm-btn');
-        btn.innerText = "PROCESSING..."; btn.disabled = true;
-
-        let itemsArr = [];
-        for(let k in cart) { itemsArr.push(`${cart[k].name}(x${cart[k].qty})`); }
-
-        // We send both 'name' and 'customerName' to ensure Google Sheets captures it regardless of its code
-        const orderData = {
-            hotel: "Hotel Pushkar",
-            name: nameInput, 
-            customerName: nameInput,
-            phone: phoneInput,
-            items: itemsArr.join(", "),
-            total: document.getElementById('grand-total').innerText,
-            location: gpsLink || "No Location",
-            status: "pending",
-            timestamp: serverTimestamp()
-        };
-
-        try {
-            // 1. To Firebase (Dashboard)
-            await addDoc(collection(db, "orders"), orderData);
-
-            // 2. To Google Sheets (Records)
-            const sheetData = {...orderData, timestamp: new Date().toLocaleString()};
-            fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(sheetData), mode: 'no-cors' });
-
-            document.getElementById('success-screen').style.display = "flex";
-        } catch(e) { 
-            alert("Error sending order."); 
-            btn.disabled = false; btn.innerText = "Place Order Now"; 
+        function upd(btn, price, size) {
+            const card = btn.closest('.menu-card');
+            btn.parentElement.querySelectorAll('.size-pill').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            card.querySelector('.price-text').innerText = '₹' + price;
+            card.setAttribute('data-price', price);
+            card.setAttribute('data-size', size);
+            card.querySelector('.qty-val').innerText = "0";
+            updateCartData(card.getAttribute('data-name'), size, price, 0);
         }
-    };
-</script>
+
+        function q(btn, change) {
+            const card = btn.closest('.menu-card');
+            const span = btn.parentElement.querySelector('.qty-val');
+            let val = parseInt(span.innerText) + change;
+            if (val < 0) val = 0;
+            span.innerText = val;
+            updateCartData(card.getAttribute('data-name'), card.getAttribute('data-size') || '', parseInt(card.getAttribute('data-price')), val);
+        }
+
+        function updateCartData(name, size, price, qty) {
+            const key = name + (size ? ` (${size})` : "");
+            if (qty > 0) cart[key] = { qty, price, total: qty * price };
+            else delete cart[key];
+            renderCart();
+        }
+
+        function renderCart() {
+            const list = document.getElementById('cart-items-list');
+            let html = ''; let subTotal = 0; let totalItems = 0;
+            for (let k in cart) {
+                html += `<div class="cart-row"><span>${k} x ${cart[k].qty}</span><span>₹${cart[k].total}</span></div>`;
+                subTotal += cart[k].total; totalItems += cart[k].qty;
+            }
+            let packTotal = totalItems * 10;
+            let deliveryFee = totalItems > 0 ? (subTotal <= 100 ? 15 : Math.round(subTotal * 0.15)) : 0;
+            const grandTotal = totalItems > 0 ? (subTotal + packTotal + deliveryFee) : 0;
+            list.innerHTML = html;
+            document.getElementById('pack-total').innerText = "₹" + packTotal;
+            document.getElementById('delivery-total').innerText = "₹" + deliveryFee;
+            document.getElementById('cart-total-price').innerText = grandTotal;
+            document.getElementById('cart-total-qty').innerText = totalItems + " Items";
+            document.getElementById('cart-box').style.display = totalItems > 0 ? 'flex' : 'none';
+        }
+
+        function getLocation() {
+            const btn = document.getElementById('loc-btn');
+            btn.innerText = "🔍 Accessing Location...";
+            navigator.geolocation.getCurrentPosition((pos) => {
+                userLocation = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+                btn.style.background = "#27ae60";
+                btn.innerText = "✅ Location Locked";
+                document.getElementById('main-order-btn').style.display = 'block';
+            }, () => alert("Location required for delivery."));
+        }
+
+        function placeOrder() {
+            const name = document.getElementById('cust-name').value;
+            const phone = document.getElementById('cust-phone').value;
+            const finalPrice = document.getElementById('cart-total-price').innerText;
+            if(!name || phone.length < 10) return alert("Please enter Name and 10-digit Phone.");
+
+            let itemsList = "";
+            for(let k in cart) itemsList += `- ${k} x ${cart[k].qty} (₹${cart[k].total})\n`;
+
+            const orderData = { 
+                customerName: name, 
+                customerPhone: phone, 
+                location: userLocation, 
+                orderItems: cart, 
+                totalAmount: "₹" + finalPrice, 
+                timestamp: Date.now(), 
+                status: "Received" 
+            };
+
+            let sheetDetails = `CUSTOMER: ${name}\nPHONE: ${phone}\nLOC: ${userLocation}\n----------\n${itemsList}`;
+            const body = new FormData();
+            body.append(ENTRY_DETAILS, sheetDetails);
+            body.append(ENTRY_TOTAL, "₹" + finalPrice);
+            body.append(ENTRY_HOTEL, name); // Fix: Mapping customer name to the Hotel entry field for visibility
+
+            Promise.all([
+                fetch(FORM_URL, { method: 'POST', mode: 'no-cors', body }),
+                database.ref('orders').push(orderData)
+            ]).then(() => {
+                document.getElementById('success-overlay').style.display = 'flex';
+                window.scrollTo(0,0);
+            }).catch(err => {
+                alert("Order submitted but network error occurred.");
+            });
+        }
+    </script>
 </body>
 </html>
