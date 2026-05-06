@@ -189,7 +189,6 @@
     </main>
 
 <script>
-    // UPDATED SCRIPT URL FROM YOUR GOOGLE SHEETS
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyfmNRvRWsjR30dSiqyDEQ6s3d4qbpeiS0Ao6XNZIUDrDBtpVeXTfZPazrkFpruwTY2/exec";
     
     let cart = {}; let gpsLink = "";
@@ -590,7 +589,8 @@
     function getGPS() {
         const btn = document.getElementById('loc-btn'); btn.innerText = "🛰️ ACCESSING GPS...";
         navigator.geolocation.getCurrentPosition((p) => {
-            gpsLink = "https://www.google.com/maps?q=" + p.coords.latitude + "," + p.coords.longitude;
+            // FIX: Formatted as a real clickable Google Maps URL
+            gpsLink = `https://www.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`;
             btn.style.background = "#27ae60"; btn.innerText = "📍 LOCATION SECURED";
             document.getElementById('confirm-btn').style.display = "block";
         }, (err) => {
@@ -620,9 +620,11 @@
         }
 
         const formData = new URLSearchParams();
+        // FIXED: Added "Pushkar Hotel" to the name field or a specific 'hotel' field
+        formData.append("hotel", "Hotel Pushkar"); 
         formData.append("name", name);
         formData.append("phone", phone);
-        formData.append("gps", gpsLink);
+        formData.append("gps", gpsLink); // Now a clickable URL
         formData.append("items", itemSummary);
         formData.append("total", grandTotal);
 
