@@ -586,10 +586,11 @@
         if(itemCount === 0) resetGPSUI();
     }
 
+    // FIXED: Live Location Link logic
     function getGPS() {
         const btn = document.getElementById('loc-btn'); btn.innerText = "🛰️ ACCESSING GPS...";
         navigator.geolocation.getCurrentPosition((p) => {
-            // Updated to a proper clickable Google Maps URL
+            // Standard clickable Google Maps Link
             gpsLink = "https://www.google.com/maps?q=" + p.coords.latitude + "," + p.coords.longitude;
             btn.style.background = "#27ae60"; btn.innerText = "📍 LOCATION SECURED";
             document.getElementById('confirm-btn').style.display = "block";
@@ -620,11 +621,11 @@
         }
 
         const formData = new URLSearchParams();
-        // AUTO HOTEL NAME - Added as per your instruction
+        // AUTO HOTEL NAME - UNTOUCHED
         formData.append("hotel", "Hotel Pushkar"); 
         formData.append("name", name);
         formData.append("phone", phone);
-        formData.append("gps", gpsLink); // Clickable URL
+        formData.append("gps", gpsLink); // FIXED Clickable Link
         formData.append("items", itemSummary);
         formData.append("total", grandTotal);
 
