@@ -101,7 +101,7 @@
             display: none;
             max-width: 900px;
             margin: 0 auto;
-            padding-bottom: 450px; /* Space for cart popup */
+            padding-bottom: 450px;
         }
 
         .tabs-container {
@@ -117,9 +117,7 @@
             scrollbar-width: none;
         }
 
-        .tabs-container::-webkit-scrollbar {
-            display: none;
-        }
+        .tabs-container::-webkit-scrollbar { display: none; }
 
         .tab-btn {
             background: var(--gray);
@@ -155,7 +153,6 @@
             font-size: 1rem;
             outline: none;
             box-sizing: border-box;
-            transition: 0.3s;
         }
 
         .category-header {
@@ -173,7 +170,6 @@
             margin: 12px 15px;
             border-radius: 15px;
             box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-            transition: 0.3s;
         }
 
         .item-main {
@@ -182,16 +178,8 @@
             align-items: center;
         }
 
-        .item-name {
-            font-weight: 700;
-            font-size: 1.05rem;
-        }
-
-        .item-price {
-            color: var(--primary);
-            font-weight: 800;
-            font-size: 1.1rem;
-        }
+        .item-name { font-weight: 700; font-size: 1.05rem; }
+        .item-price { color: var(--primary); font-weight: 800; font-size: 1.1rem; }
 
         .qty-controls {
             display: flex;
@@ -245,7 +233,14 @@
             border-radius: 12px;
             font-size: 1rem;
             box-sizing: border-box;
-            outline: none;
+        }
+
+        .charge-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
         }
 
         .confirm-btn {
@@ -304,15 +299,12 @@
 
     <main id="menu-page">
         <div class="tabs-container" id="tabs"></div>
-        
         <div class="search-container">
             <input type="text" id="menu-search" placeholder="Search for your favorite dish..." onkeyup="filterMenu()">
         </div>
-
         <div style="padding: 15px;">
-            <img id="cat-banner" style="width: 100%; height: 220px; object-fit: cover; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);" src="">
+            <img id="cat-banner" style="width: 100%; height: 220px; object-fit: cover; border-radius: 20px;" src="">
         </div>
-
         <h2 id="cat-title" class="category-header"></h2>
         <div id="items-container"></div>
 
@@ -321,9 +313,13 @@
             <input type="text" id="cust-name" class="delivery-input" placeholder="Your Name">
             <input type="tel" id="cust-phone" class="delivery-input" placeholder="Mobile Number">
             
-            <div id="cart-summary" style="max-height: 150px; overflow-y: auto; margin: 15px 0;"></div>
+            <div id="cart-summary" style="max-height: 120px; overflow-y: auto; margin: 10px 0; border-bottom: 1px solid #eee;"></div>
             
-            <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 1.4rem; margin-top: 10px;">
+            <div class="charge-row"><span>Subtotal:</span><span>₹<span id="sub-total">0</span></span></div>
+            <div class="charge-row"><span>GST (5%):</span><span>₹<span id="gst-amount">0</span></span></div>
+            <div class="charge-row"><span>Delivery:</span><span>₹<span id="delivery-amount">0</span></span></div>
+            
+            <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 1.4rem; margin-top: 5px;">
                 <span>Total:</span>
                 <span>₹<span id="grand-total">0</span></span>
             </div>
@@ -694,15 +690,14 @@
     function updateCartPopup() {
         const popup = document.getElementById('cart-popup');
         const summary = document.getElementById('cart-summary');
-        const totalEl = document.getElementById('grand-total');
         
-        let total = 0;
+        let subtotal = 0;
         let count = 0;
         summary.innerHTML = "";
 
         for (let id in cart) {
             const itemTotal = cart[id].qty * cart[id].price;
-            total += itemTotal;
+            subtotal += itemTotal;
             count++;
             summary.innerHTML += `
                 <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9rem; color: #555;">
@@ -712,7 +707,24 @@
             `;
         }
 
-        totalEl.innerText = total;
+        // Logic applied:
+        const gst = Math.round(subtotal * 0.05); // 5% GST
+        let delivery = 0;
+        if (subtotal > 0) {
+            if (subtotal < 100) {
+                delivery = 15; // Flat 15 if < 100
+            } else {
+                delivery = Math.round(subtotal * 0.15); // 15% if >= 100
+            }
+        }
+
+        const grandTotal = subtotal + gst + delivery;
+
+        document.getElementById('sub-total').innerText = subtotal;
+        document.getElementById('gst-amount').innerText = gst;
+        document.getElementById('delivery-amount').innerText = delivery;
+        document.getElementById('grand-total').innerText = grandTotal;
+        
         popup.classList.toggle('active', count > 0);
     }
 
@@ -743,7 +755,11 @@
         for (let id in cart) {
             itemsStr += `${cart[id].name} (Qty: ${cart[id].qty}), `;
         }
+        
         formData.append("items", itemsStr);
+        formData.append("subtotal", document.getElementById('sub-total').innerText);
+        formData.append("gst", document.getElementById('gst-amount').innerText);
+        formData.append("delivery", document.getElementById('delivery-amount').innerText);
         formData.append("total", document.getElementById('grand-total').innerText);
 
         fetch(SCRIPT_URL, {
