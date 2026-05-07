@@ -361,7 +361,6 @@
     let disabledItems = JSON.parse(localStorage.getItem('pushkar_status')) || {};
     let userLocation = null;
 
-    // --- YOUR DATA REMAINS THE SAME ---
     const menuData = {
         "STARTERS": [
             { id: "s1", name: "ROASTED PAPAD", price: 30 },
@@ -604,13 +603,9 @@
         "VEG THALI": "https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?q=80&w=800&auto=format&fit=crop"
     };
 
-    // --- NEW LOGIC FOR VALIDATION & LOCATION ---
-
     function validateForm() {
         const phone = document.getElementById('cust-phone').value;
         const confirmBtn = document.getElementById('confirm-btn');
-        
-        // Unlocks ONLY if phone is 10 digits AND location is captured
         if (phone.length === 10 && userLocation !== null) {
             confirmBtn.classList.add('unlocked');
         } else {
@@ -621,7 +616,6 @@
     function getLocation() {
         const btn = document.getElementById('loc-btn');
         btn.innerText = "⌛ Accessing GPS...";
-
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
@@ -631,7 +625,7 @@
                     };
                     btn.innerText = "✅ Location Shared";
                     btn.classList.add('success');
-                    validateForm(); // Re-check button lock
+                    validateForm();
                 },
                 (error) => {
                     alert("Please allow location access to continue.");
@@ -642,8 +636,6 @@
             alert("Geolocation is not supported by this browser.");
         }
     }
-
-    // --- EXISTING FUNCTIONS (KEEPING YOUR ORIGINAL WORK) ---
 
     function openAdmin() {
         const pin = prompt("Enter Admin PIN:");
@@ -712,10 +704,8 @@
         document.getElementById('cat-banner').src = categoryImages[cat] || "";
         const container = document.getElementById('items-container');
         container.innerHTML = "";
-
         menuData[cat].forEach(item => {
             if (disabledItems[item.id]) return;
-
             if (item.prices) {
                 for (let size in item.prices) {
                     const uniqueId = `${item.id}-${size}`;
@@ -749,21 +739,17 @@
         if (!cart[id]) cart[id] = { name: name, price: price, qty: 0 };
         cart[id].qty += change;
         if (cart[id].qty <= 0) delete cart[id];
-        
         const qtyEl = document.getElementById(`qty-${id}`);
         if (qtyEl) qtyEl.innerText = cart[id] ? cart[id].qty : 0;
-        
         updateCartPopup();
     }
 
     function updateCartPopup() {
         const popup = document.getElementById('cart-popup');
         const summary = document.getElementById('cart-summary');
-        
         let subtotal = 0;
         let count = 0;
         summary.innerHTML = "";
-
         for (let id in cart) {
             const itemTotal = cart[id].qty * cart[id].price;
             subtotal += itemTotal;
@@ -772,78 +758,83 @@
                 <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9rem; color: #555;">
                     <span>${cart[id].name} x ${cart[id].qty}</span>
                     <span>₹${itemTotal}</span>
-                </div>
-            `;
+                </div>`;
         }
-
-        const gst = Math.round(subtotal * 0.05);
-        let delivery = 0;
-        if (subtotal > 0) {
-            if (subtotal < 100) {
-                delivery = 15;
-            } else {
-                delivery = Math.round(subtotal * 0.15);
-            }
-        }
-
-        const grandTotal = subtotal + gst + delivery;
-
         document.getElementById('sub-total').innerText = subtotal;
+        const gst = Math.round(subtotal * 0.05);
         document.getElementById('gst-amount').innerText = gst;
+        const delivery = subtotal > 0 ? 30 : 0;
         document.getElementById('delivery-amount').innerText = delivery;
-        document.getElementById('grand-total').innerText = grandTotal;
-        
-        popup.classList.toggle('active', count > 0);
-        validateForm(); // Check validation when items change
+        document.getElementById('grand-total').innerText = subtotal + gst + delivery;
+        if (count > 0) popup.classList.add('active');
+        else popup.classList.remove('active');
+        validateForm();
     }
 
     function filterMenu() {
         const query = document.getElementById('menu-search').value.toLowerCase();
-        const items = document.querySelectorAll('.menu-item');
-        items.forEach(item => {
-            const name = item.querySelector('.item-name').innerText.toLowerCase();
-            item.style.display = name.includes(query) ? "block" : "none";
-        });
+        const container = document.getElementById('items-container');
+        container.innerHTML = "";
+        for (let cat in menuData) {
+            menuData[cat].forEach(item => {
+                if (disabledItems[item.id]) return;
+                if (item.name.toLowerCase().includes(query)) {
+                    if (item.prices) {
+                        for (let size in item.prices) {
+                            container.innerHTML += createItemHTML(`${item.id}-${size}`, `${item.name} (${size})`, item.prices[size]);
+                        }
+                    } else {
+                        container.innerHTML += createItemHTML(item.id, item.name, item.price);
+                    }
+                }
+            });
+        }
     }
 
+    /**
+     * THE NEW CLICK-LOCK LOGIC
+     */
     function submitOrder() {
+        const btn = document.getElementById('confirm-btn');
         const name = document.getElementById('cust-name').value;
         const phone = document.getElementById('cust-phone').value;
 
-        if (!name || phone.length !== 10 || !userLocation) {
-            alert("Please fill name, 10-digit phone and share location!");
-            return;
-        }
+        // 1. STOPS REPEAT CLICKS IMMEDIATELY
+        btn.disabled = true;
+        btn.innerText = "SENDING ORDER...";
+        btn.style.background = "#888";
+        btn.style.pointerEvents = "none";
 
-        const formData = new URLSearchParams();
-        formData.append("hotel", "Hotel Pushkar");
-        formData.append("name", name);
-        formData.append("phone", phone);
-        
-        // Added location coordinates to Sheet data
-        formData.append("location", `Lat: ${userLocation.lat}, Lng: ${userLocation.lng}`);
-        formData.append("google_maps_link", `https://www.google.com/maps?q=${userLocation.lat},${userLocation.lng}`);
-
-        let itemsStr = "";
+        let orderText = "";
         for (let id in cart) {
-            itemsStr += `${cart[id].name} (Qty: ${cart[id].qty}), `;
+            orderText += `${cart[id].name} x ${cart[id].qty}, `;
         }
-        
-        formData.append("items", itemsStr);
-        formData.append("subtotal", document.getElementById('sub-total').innerText);
-        formData.append("gst", document.getElementById('gst-amount').innerText);
-        formData.append("delivery", document.getElementById('delivery-amount').innerText);
-        formData.append("total", document.getElementById('grand-total').innerText);
+
+        const data = {
+            name: name,
+            phone: phone,
+            order: orderText,
+            total: document.getElementById('grand-total').innerText,
+            location: `https://www.google.com/maps?q=${userLocation.lat},${userLocation.lng}`
+        };
 
         fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: formData
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
         }).then(() => {
             document.getElementById('success-screen').style.display = 'flex';
-            cart = {};
+        }).catch(err => {
+            alert("Error sending order. Please check connection.");
+            // Re-enable only if there was an actual error
+            btn.disabled = false;
+            btn.innerText = "Confirm & Send Order";
+            btn.style.background = "#2e7d32";
+            btn.style.pointerEvents = "auto";
         });
     }
 </script>
+
 </body>
 </html>
