@@ -3,144 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Zen Vault | [Your Brand]</title>
+    <title>Flavor Runner 2028</title>
     <style>
-        :root {
-            --bg: #0f172a;
-            --gold: #fbbf24;
-            --soft-white: #f8fafc;
-        }
-
-        body {
-            margin: 0;
-            background-color: var(--bg);
-            color: var(--soft-white);
-            font-family: 'Segoe UI', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* Aesthetic Header */
-        .header {
-            position: absolute;
-            top: 40px;
-            text-align: center;
-        }
-
-        .coin-display {
-            font-size: 2rem;
-            color: var(--gold);
-            font-weight: bold;
-            text-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
-        }
-
-        /* The Game Area */
-        .game-container {
-            position: relative;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .game-container:active {
-            transform: scale(0.95);
-        }
-
-        #zen-orb {
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle, #38bdf8, #1e40af);
-            border-radius: 50%;
-            box-shadow: 0 0 50px rgba(56, 189, 248, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            user-select: none;
-            animation: float 4s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-
-        /* Instructions */
-        .info {
-            position: absolute;
-            bottom: 40px;
-            text-align: center;
-            max-width: 80%;
-            color: #94a3b8;
-        }
-
-        .save-note {
-            font-size: 0.8rem;
-            margin-top: 10px;
-            color: #475569;
-        }
-
-        /* Floating Coin Animation */
-        .plus-one {
-            position: absolute;
-            color: var(--gold);
-            font-weight: bold;
-            animation: climb 1s forwards;
-            pointer-events: none;
-        }
-
-        @keyframes climb {
-            0% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-100px); }
-        }
+        body { margin: 0; background: #0f172a; color: white; font-family: sans-serif; overflow: hidden; display: flex; flex-direction: column; align-items: center; }
+        #gameCanvas { background: linear-gradient(#1e293b, #0f172a); border-bottom: 5px solid #38bdf8; cursor: pointer; }
+        .stats { position: absolute; top: 20px; left: 20px; font-size: 24px; font-weight: bold; color: #fbbf24; }
+        .ui { text-align: center; padding: 10px; }
+        .instructions { color: #94a3b8; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div style="font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px;">Your Future Balance</div>
-        <div class="coin-display"><span id="coin-count">0</span> COINS</div>
+    <div class="stats">FOOD COLLECTED: <span id="score">0</span></div>
+    
+    <div class="ui">
+        <h2>FLAVOR RUNNER</h2>
+        <p class="instructions">Jump over 💣 Bombs. Collect 🍕 Food & 🎁 Gift Cards! <br> (Press SPACE or TAP to Jump)</p>
     </div>
 
-    <div class="game-container" onclick="collectCoin(event)">
-        <div id="zen-orb">TAP TO GROW</div>
-    </div>
-
-    <div class="info">
-        <p>"Patience is the seed of abundance."</p>
-        <p>Accumulate coins today. Use them as real currency when we return in <strong>2028</strong>.</p>
-        <div class="save-note">Coins are automatically saved to your browser. Do not clear your cache!</div>
-    </div>
+    <canvas id="gameCanvas"></canvas>
 
     <script>
-        let coins = parseInt(localStorage.getItem('userCoins')) || 0;
-        const display = document.getElementById('coin-count');
-        
-        // Initialize display
-        display.innerText = coins;
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('score');
 
-        function collectCoin(e) {
-            // Increase count
-            coins++;
-            display.innerText = coins;
-            
-            // Save to browser memory
-            localStorage.setItem('userCoins', coins);
+        canvas.width = window.innerWidth;
+        canvas.height = 400;
 
-            // Create floating text effect
-            const plus = document.createElement('div');
-            plus.innerText = "+1";
-            plus.className = 'plus-one';
-            plus.style.left = e.clientX + 'px';
-            plus.style.top = e.clientY + 'px';
-            document.body.appendChild(plus);
+        let score = parseInt(localStorage.getItem('userCoins')) || 0;
+        scoreEl.innerText = score;
 
-            // Clean up animation element
-            setTimeout(() => plus.remove(), 1000);
+        let gameSpeed = 5;
+        let isGameOver = false;
+
+        const player = {
+            x: 50, y: 300, w: 50, h: 50,
+            dy: 0, jumpForce: 12, gravity: 0.6,
+            grounded: false, color: '#38bdf8'
+        };
+
+        const obstacles = [];
+        const items = ["🍕", "🍔", "🍎", "🎁", "💣"];
+
+        function spawnObstacle() {
+            const type = items[Math.floor(Math.random() * items.length)];
+            obstacles.push({
+                x: canvas.width,
+                y: 320,
+                type: type,
+                width: 40,
+                collected: false
+            });
         }
+
+        function update() {
+            if (isGameOver) return;
+
+            // Physics
+            player.dy += player.gravity;
+            player.y += player.dy;
+
+            if (player.y > 300) {
+                player.y = 300;
+                player.dy = 0;
+                player.grounded = true;
+            }
+
+            // Move Obstacles
+            obstacles.forEach((obs, index) => {
+                obs.x -= gameSpeed;
+
+                // Collision detection
+                if (player.x < obs.x + obs.width && player.x + player.w > obs.x &&
+                    player.y < obs.y + 40 && player.y + player.h > obs.y) {
+                    
+                    if (obs.type === "💣") {
+                        gameOver();
+                    } else if (!obs.collected) {
+                        obs.collected = true;
+                        score += 10;
+                        scoreEl.innerText = score;
+                        localStorage.setItem('userCoins', score);
+                        obstacles.splice(index, 1);
+                    }
+                }
+
+                if (obs.x < -50) obstacles.splice(index, 1);
+            });
+
+            if (Math.random() < 0.02) spawnObstacle();
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Player (The Boy/Runner)
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.w, player.h);
+            ctx.font = "30px Arial";
+            ctx.fillText("🏃", player.x + 5, player.y + 35);
+
+            // Draw Obstacles/Items
+            obstacles.forEach(obs => {
+                ctx.fillText(obs.type, obs.x, obs.y + 30);
+            });
+
+            requestAnimationFrame(() => {
+                update();
+                draw();
+            });
+        }
+
+        function gameOver() {
+            alert("Hit a Bomb! Your food stash is safe in the vault. Try again!");
+            location.reload();
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && player.grounded) {
+                player.dy = -player.jumpForce;
+                player.grounded = false;
+            }
+        });
+
+        canvas.addEventListener('touchstart', () => {
+            if (player.grounded) {
+                player.dy = -player.jumpForce;
+                player.grounded = false;
+            }
+        });
+
+        draw();
     </script>
 </body>
 </html>
