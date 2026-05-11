@@ -3,74 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Taking a Creative Break | [Your Business Name]</title>
+    <title>The Zen Vault | [Your Brand]</title>
     <style>
-        body, html {
-            height: 100%;
+        :root {
+            --bg: #0f172a;
+            --gold: #fbbf24;
+            --soft-white: #f8fafc;
+        }
+
+        body {
             margin: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #0f172a; /* Dark Navy Professional Background */
-            color: #f8fafc;
+            background-color: var(--bg);
+            color: var(--soft-white);
+            font-family: 'Segoe UI', sans-serif;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Aesthetic Header */
+        .header {
+            position: absolute;
+            top: 40px;
             text-align: center;
         }
 
-        .container {
-            max-width: 600px;
-            padding: 40px;
-            border: 1px solid #1e293b;
-            border-radius: 15px;
-            background: rgba(30, 41, 59, 0.5);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-            color: #38bdf8; /* Soft Blue accent */
-        }
-
-        blockquote {
-            font-size: 1.4rem;
-            font-style: italic;
-            line-height: 1.6;
-            margin: 30px 0;
-            color: #e2e8f0;
-        }
-
-        cite {
-            display: block;
-            margin-top: 10px;
-            font-size: 1rem;
-            color: #94a3b8;
-            font-style: normal;
-        }
-
-        .re-launch {
-            margin-top: 40px;
+        .coin-display {
+            font-size: 2rem;
+            color: var(--gold);
             font-weight: bold;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: #fbbf24; /* Gold accent for the return date */
+            text-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
+        }
+
+        /* The Game Area */
+        .game-container {
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .game-container:active {
+            transform: scale(0.95);
+        }
+
+        #zen-orb {
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, #38bdf8, #1e40af);
+            border-radius: 50%;
+            box-shadow: 0 0 50px rgba(56, 189, 248, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            user-select: none;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Instructions */
+        .info {
+            position: absolute;
+            bottom: 40px;
+            text-align: center;
+            max-width: 80%;
+            color: #94a3b8;
+        }
+
+        .save-note {
+            font-size: 0.8rem;
+            margin-top: 10px;
+            color: #475569;
+        }
+
+        /* Floating Coin Animation */
+        .plus-one {
+            position: absolute;
+            color: var(--gold);
+            font-weight: bold;
+            animation: climb 1s forwards;
+            pointer-events: none;
+        }
+
+        @keyframes climb {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-100px); }
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>A Brief Intermission</h1>
-        
-        <blockquote>
-            "The best way to predict the future is to create it. We are stepping away to build a better version of what we do."
-            <cite>— Inspired by Peter Drucker</cite>
-        </blockquote>
-
-        <p>Our doors are temporarily closed as we undergo a 2-year transformation.</p>
-
-        <div class="re-launch">Returning in 2028</div>
+    <div class="header">
+        <div style="font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px;">Your Future Balance</div>
+        <div class="coin-display"><span id="coin-count">0</span> COINS</div>
     </div>
 
+    <div class="game-container" onclick="collectCoin(event)">
+        <div id="zen-orb">TAP TO GROW</div>
+    </div>
+
+    <div class="info">
+        <p>"Patience is the seed of abundance."</p>
+        <p>Accumulate coins today. Use them as real currency when we return in <strong>2028</strong>.</p>
+        <div class="save-note">Coins are automatically saved to your browser. Do not clear your cache!</div>
+    </div>
+
+    <script>
+        let coins = parseInt(localStorage.getItem('userCoins')) || 0;
+        const display = document.getElementById('coin-count');
+        
+        // Initialize display
+        display.innerText = coins;
+
+        function collectCoin(e) {
+            // Increase count
+            coins++;
+            display.innerText = coins;
+            
+            // Save to browser memory
+            localStorage.setItem('userCoins', coins);
+
+            // Create floating text effect
+            const plus = document.createElement('div');
+            plus.innerText = "+1";
+            plus.className = 'plus-one';
+            plus.style.left = e.clientX + 'px';
+            plus.style.top = e.clientY + 'px';
+            document.body.appendChild(plus);
+
+            // Clean up animation element
+            setTimeout(() => plus.remove(), 1000);
+        }
+    </script>
 </body>
 </html>
